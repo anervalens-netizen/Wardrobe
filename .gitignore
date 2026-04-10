@@ -15,3 +15,7 @@ Thumbs.db
 
 .vercel
 .superpowers/
+dev.db
+dev.db-journal
+tmp/
+tsconfig.tsbuildinfo
