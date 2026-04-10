@@ -30,7 +30,7 @@ export async function POST(req: Request) {
 
       try {
         const stream = await googleAI.models.generateContentStream({
-          model: "gemini-2.0-flash-lite",
+          model: "gemini-flash-lite-latest",
           config: {
             systemInstruction: systemPrompt,
           },
