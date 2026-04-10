@@ -7,3 +7,11 @@ build/
 *.log
 .DS_Store
 Thumbs.db
+
+/src/generated/prisma
+/public/uploads
+/prisma/dev.db
+/prisma/dev.db-journal
+
+.vercel
+.superpowers/
