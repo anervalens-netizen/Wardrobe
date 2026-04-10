@@ -168,15 +168,16 @@ export function ClothingFilters({
 
         {/* Mobile filter button */}
         <Sheet>
-          <SheetTrigger>
-            <Button variant="outline" size="icon" className="md:hidden relative">
-              <SlidersHorizontal className="h-4 w-4" />
-              {activeCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-primary-foreground text-[10px] rounded-full flex items-center justify-center">
-                  {activeCount}
-                </span>
-              )}
-            </Button>
+          <SheetTrigger
+            aria-label="Filtre"
+            className="md:hidden relative inline-flex items-center justify-center h-8 w-8 rounded-lg border border-border bg-background hover:bg-accent transition-colors"
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            {activeCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-primary-foreground text-[10px] rounded-full flex items-center justify-center">
+                {activeCount}
+              </span>
+            )}
           </SheetTrigger>
           <SheetContent>
             <SheetHeader>

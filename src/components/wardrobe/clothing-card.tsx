@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Heart, Shirt } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CATEGORIES } from "@/lib/constants";
@@ -39,10 +40,12 @@ export function ClothingCard({ item, onToggleFavorite }: ClothingCardProps) {
         {/* Image */}
         <div className="relative aspect-square">
           {item.imagePath ? (
-            <img
+            <Image
               src={item.imagePath}
               alt={item.name}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
+              unoptimized
             />
           ) : (
             <div
@@ -55,6 +58,7 @@ export function ClothingCard({ item, onToggleFavorite }: ClothingCardProps) {
 
           {/* Favorite button */}
           <button
+            aria-label={item.favorite ? "Elimină din favorite" : "Adaugă la favorite"}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
