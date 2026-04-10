@@ -136,4 +136,7 @@
   .ring-ava {
     box-shadow: 0 0 0 4px oklch(0.59 0.21 293 / 0.2);
   }
+  .pb-safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
 }

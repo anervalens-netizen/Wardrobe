@@ -69,7 +69,7 @@ export function Sidebar() {
               >
                 <item.icon
                   className={cn(
-                    "h-4.5 w-4.5 shrink-0",
+                    "h-[18px] w-[18px] shrink-0",
                     isActive ? "text-primary" : "text-muted-foreground"
                   )}
                 />
@@ -91,7 +91,7 @@ export function Sidebar() {
             className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/5 rounded-xl"
             onClick={() => signOut({ callbackUrl: "/login" })}
           >
-            <LogOut className="h-4.5 w-4.5" />
+            <LogOut className="h-[18px] w-[18px]" />
             Deconectare
           </Button>
         </div>

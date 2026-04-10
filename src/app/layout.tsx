@@ -29,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ro" className={`${dmSerifDisplay.variable} ${nunito.variable} h-full`} suppressHydrationWarning>
+    <html lang="ro" className={`${dmSerifDisplay.variable} ${nunito.variable} h-full`}>
       <body className="min-h-full bg-background text-foreground antialiased">
         <Providers>
           {children}
