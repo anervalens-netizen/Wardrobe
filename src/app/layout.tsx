@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DM_Serif_Display, Nunito } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "@/components/providers";
+import { SwRegister } from "@/components/sw-register";
 import "./globals.css";
 
 const dmSerifDisplay = DM_Serif_Display({
@@ -47,6 +48,7 @@ export default function RootLayout({
         <Providers>
           {children}
           <Toaster richColors position="top-right" />
+          <SwRegister />
         </Providers>
       </body>
     </html>
