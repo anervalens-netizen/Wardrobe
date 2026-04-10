@@ -1,8 +1,9 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Shirt, PlusCircle, MessageSquare, Clock, Star, TrendingUp, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,36 +22,36 @@ interface DashboardStats {
   unwornItems: { id: string; name: string; category: string }[];
 }
 
-const TODAY = new Date().toLocaleDateString("ro-RO", {
-  weekday: "long",
-  day: "numeric",
-  month: "long",
-});
-
-const QUICK_ACTIONS = [
+const QUICK_ACTIONS: {
+  href: string;
+  label: string;
+  icon: React.ElementType;
+  style: React.CSSProperties;
+  textDark?: boolean;
+}[] = [
   {
     href: "/add-item",
     label: "Adaugă piesă",
     icon: PlusCircle,
-    gradient: "from-violet-500 to-purple-400",
+    style: { background: "linear-gradient(135deg, oklch(0.59 0.21 293), oklch(0.70 0.18 293))" },
   },
   {
     href: "/assistant",
     label: "Cere sfat Ava",
     icon: Sparkles,
-    gradient: "from-teal-500 to-cyan-400",
+    style: { background: "linear-gradient(135deg, oklch(0.70 0.14 185), oklch(0.78 0.12 185))" },
   },
   {
     href: "/wardrobe",
     label: "Garderobă",
     icon: Shirt,
-    gradient: "from-fuchsia-400 to-pink-300",
+    style: { background: "linear-gradient(135deg, oklch(0.75 0.12 330), oklch(0.82 0.09 330))" },
   },
   {
     href: "/history",
     label: "Istoric",
     icon: Clock,
-    gradient: "from-rose-300 to-pink-200",
+    style: { background: "linear-gradient(135deg, oklch(0.88 0.06 20), oklch(0.93 0.04 20))" },
     textDark: true,
   },
 ];
@@ -59,8 +60,19 @@ export default function DashboardPage() {
   const { data: session } = useSession();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [today, setToday] = useState("");
 
   const firstName = session?.user?.name?.split(" ")[0] || "tu";
+
+  useEffect(() => {
+    setToday(
+      new Date().toLocaleDateString("ro-RO", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+      })
+    );
+  }, []);
 
   useEffect(() => {
     fetch("/api/dashboard")
@@ -76,7 +88,7 @@ export default function DashboardPage() {
       <div className="flex items-start justify-between">
         <div>
           <p className="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-1">
-            {TODAY}
+            {today}
           </p>
           <h1 className="font-heading italic text-3xl text-foreground leading-tight">
             Ediția ta de azi
@@ -141,13 +153,14 @@ export default function DashboardPage() {
           {QUICK_ACTIONS.map((action) => (
             <Link key={action.href} href={action.href}>
               <div
-                className={`bg-gradient-to-br ${action.gradient} rounded-2xl p-4 flex items-center gap-3 shadow-ava-sm hover:shadow-ava transition-all duration-200 hover:-translate-y-0.5`}
+                className="rounded-2xl p-4 flex items-center gap-3 shadow-ava-sm hover:shadow-ava transition-all duration-200 hover:-translate-y-0.5"
+                style={action.style}
               >
                 <action.icon
-                  className={`h-5 w-5 shrink-0 ${action.textDark ? "text-rose-600" : "text-white"}`}
+                  className={`h-5 w-5 shrink-0 ${action.textDark ? "text-gray-700" : "text-white"}`}
                 />
                 <span
-                  className={`text-sm font-bold ${action.textDark ? "text-rose-700" : "text-white"}`}
+                  className={`text-sm font-bold ${action.textDark ? "text-gray-700" : "text-white"}`}
                 >
                   {action.label}
                 </span>
@@ -168,11 +181,15 @@ export default function DashboardPage() {
               <Link key={item.id} href={`/wardrobe/${item.id}`}>
                 <div className="rounded-2xl border border-border/50 overflow-hidden hover:shadow-ava hover:-translate-y-0.5 transition-all duration-200 bg-card">
                   {item.imagePath ? (
-                    <img
-                      src={item.imagePath}
-                      alt={item.name}
-                      className="w-full h-28 object-cover"
-                    />
+                    <div className="relative w-full h-28">
+                      <Image
+                        src={item.imagePath}
+                        alt={item.name}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
                   ) : (
                     <div
                       className="w-full h-28 flex items-center justify-center"
