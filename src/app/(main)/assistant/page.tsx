@@ -154,11 +154,10 @@ export default function AssistantPage() {
               <Sparkles className="h-8 w-8 text-primary" />
             </div>
             <h2 className="text-xl font-semibold mb-2">
-              Salut! Sunt asistentul tău fashion
+              Salut! Sunt Ava
             </h2>
             <p className="text-muted-foreground mb-8 max-w-md">
-              Spune-mi cu ce te pot ajuta. Pot să-ți recomand ținute pentru orice
-              ocazie, bazat pe garderoba ta.
+              Stilistul tău personal AI — întreabă-mă orice despre ținute, culori sau ce să porți azi.
             </p>
 
             <div className="grid grid-cols-2 gap-3 w-full max-w-md">
@@ -221,6 +220,7 @@ export default function AssistantPage() {
           onClick={() => sendMessage(input)}
           disabled={!input.trim() || loading}
           className="shrink-0 rounded-full gradient-teal text-white border-0 shadow-ava-sm px-4"
+          aria-label="Trimite mesaj"
         >
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
