@@ -21,6 +21,19 @@ export const metadata: Metadata = {
   title: "Ava — Your personal AI stylist",
   description:
     "Organizează-ți garderoba și primește recomandări de ținute de la asistentul tău AI de stil personal.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Ava",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+  },
 };
 
 export default function RootLayout({
