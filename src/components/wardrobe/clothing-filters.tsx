@@ -3,7 +3,6 @@
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -223,31 +222,31 @@ export function ClothingFilters({
           {totalCount} {totalCount === 1 ? "piesă" : "piese"}
         </span>
         {filters.category && (
-          <Badge variant="secondary" className="gap-1">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary">
             {CATEGORIES.find((c) => c.value === filters.category)?.label}
             <X
               className="h-3 w-3 cursor-pointer"
               onClick={() => onChange({ ...filters, category: "" })}
             />
-          </Badge>
+          </span>
         )}
         {filters.season && (
-          <Badge variant="secondary" className="gap-1">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary">
             {SEASONS.find((s) => s.value === filters.season)?.label}
             <X
               className="h-3 w-3 cursor-pointer"
               onClick={() => onChange({ ...filters, season: "" })}
             />
-          </Badge>
+          </span>
         )}
         {filters.formality && (
-          <Badge variant="secondary" className="gap-1">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary">
             {FORMALITY.find((f) => f.value === filters.formality)?.label}
             <X
               className="h-3 w-3 cursor-pointer"
               onClick={() => onChange({ ...filters, formality: "" })}
             />
-          </Badge>
+          </span>
         )}
       </div>
     </div>
