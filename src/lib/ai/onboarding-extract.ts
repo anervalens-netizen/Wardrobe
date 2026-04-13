@@ -1,6 +1,8 @@
 import { googleAI } from "./client";
 import { OnboardingProfile, OnboardingProfileSchema } from "@/lib/onboarding/types";
 
+// Keep in sync with OnboardingProfileSchema in @/lib/onboarding/types.ts
+// If you add/change a field or enum there, update the schema description below.
 const EXTRACT_SYSTEM = `Ești un parser. Primești un transcript de onboarding și returnezi DOAR JSON valid conform schemei. Nu adăuga text explicativ, nu folosi markdown fences. Dacă utilizatorul a sărit o întrebare, folosește null sau array gol.
 
 Caz special — sex: dacă utilizatorul a sărit întrebarea despre sex și apoi a răspuns la picker-ul neutru "Ava" sau "Adam", lasă sex=null în output (alegerea este despre persona, nu despre sex) și menționează alegerea în lifestyleNotes (ex: "Preferă versiunea Ava").
@@ -32,6 +34,20 @@ export async function extractOnboardingProfile(
   });
 
   const raw = result.text ?? "";
-  const parsed = JSON.parse(raw);
-  return OnboardingProfileSchema.parse(parsed);
+  if (!raw) {
+    throw new Error("extractOnboardingProfile: Gemini returned empty response");
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error(`extractOnboardingProfile: invalid JSON from Gemini — ${raw.slice(0, 200)}`);
+  }
+
+  const validation = OnboardingProfileSchema.safeParse(parsed);
+  if (!validation.success) {
+    throw new Error(`extractOnboardingProfile: schema violation — ${validation.error.message}`);
+  }
+  return validation.data;
 }
