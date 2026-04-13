@@ -15,7 +15,11 @@ Thumbs.db
 
 .vercel
 .superpowers/
+.worktrees/
 dev.db
 dev.db-journal
 tmp/
 tsconfig.tsbuildinfo
+
+.vercel
+.env*.local
