@@ -44,6 +44,10 @@ export async function POST(req: Request) {
     messages: { role: "user" | "assistant"; content: string }[];
   };
 
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return NextResponse.json({ error: "Messages invalid" }, { status: 400 });
+  }
+
   const existingProfile = await prisma.userProfile.findUnique({
     where: { userId: session.user.id },
   });
@@ -83,13 +87,16 @@ export async function POST(req: Request) {
       controller.enqueue(encoder.encode("data: [DONE]\n\n"));
       controller.close();
     },
+    cancel() {
+      // client disconnected — no explicit abort available for in-flight Gemini
+      // streams, but this prevents enqueue-to-closed-controller errors
+    },
   });
 
   return new Response(readable, {
     headers: {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",
-      Connection: "keep-alive",
     },
   });
 }
