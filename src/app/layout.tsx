@@ -19,14 +19,14 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "Ava — Your personal AI stylist",
+  title: "AI Stylist Advisor",
   description:
     "Organizează-ți garderoba și primește recomandări de ținute de la asistentul tău AI de stil personal.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Ava",
+    title: "AI Stylist",
   },
   icons: {
     icon: [
