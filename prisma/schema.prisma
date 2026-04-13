@@ -8,16 +8,18 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id                  String    @id @default(cuid())
+  name                String?
+  email               String    @unique
+  emailVerified       DateTime?
+  image               String?
+  password            String?
+  sex                 String?
+  onboardingCompleted Boolean   @default(false)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
-  accounts      Account[]
+  accounts            Account[]
   sessions      Session[]
   profile       UserProfile?
   clothingItems ClothingItem[]
@@ -73,9 +75,12 @@ model UserProfile {
   eyeColor         String?
   favoriteColors   String?
   avoidColors      String?
-  stylePreferences String?
-  notes            String?
-  createdAt        DateTime @default(now())
+  stylePreferences   String?
+  notes              String?
+  themeVariant       String?
+  preferredOccasions String?
+  lifestyleNotes     String?
+  createdAt          DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -149,6 +154,7 @@ model Conversation {
   id        String   @id @default(cuid())
   userId    String
   messages  String
+  migrated  Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
