@@ -7,9 +7,13 @@ export async function POST() {
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
   }
-  await prisma.user.update({
-    where: { id: session.user.id },
-    data: { onboardingCompleted: false },
-  });
+  try {
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: { onboardingCompleted: false },
+    });
+  } catch {
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
   return NextResponse.json({ ok: true });
 }

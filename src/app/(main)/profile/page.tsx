@@ -361,7 +361,7 @@ export default function ProfilePage() {
       </Button>
 
       <section className="mt-8 pt-6 border-t">
-        <h2 className="font-semibold mb-2">Re-rulează onboarding-ul</h2>
+        <h2 className="font-semibold mb-2">AI Stylist</h2>
         <p className="text-sm text-muted-foreground mb-3">
           Vorbește din nou cu stilistul tău dacă vrei să-ți actualizezi preferințele.
         </p>
