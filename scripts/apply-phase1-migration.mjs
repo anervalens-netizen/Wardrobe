@@ -2,17 +2,17 @@ import { createClient } from "@libsql/client";
 import "dotenv/config";
 
 const client = createClient({
-  url: process.env.TURSO_DATABASE_URL,
-  authToken: process.env.TURSO_AUTH_TOKEN,
+  url: (process.env.TURSO_DATABASE_URL || "").trim(),
+  authToken: process.env.TURSO_AUTH_TOKEN?.trim(),
 });
 
 const alters = [
   `ALTER TABLE "User" ADD COLUMN "sex" TEXT`,
-  `ALTER TABLE "User" ADD COLUMN "onboardingCompleted" INTEGER NOT NULL DEFAULT 0`,
+  `ALTER TABLE "User" ADD COLUMN "onboardingCompleted" BOOLEAN NOT NULL DEFAULT false`,
   `ALTER TABLE "UserProfile" ADD COLUMN "themeVariant" TEXT`,
   `ALTER TABLE "UserProfile" ADD COLUMN "preferredOccasions" TEXT`,
   `ALTER TABLE "UserProfile" ADD COLUMN "lifestyleNotes" TEXT`,
-  `ALTER TABLE "Conversation" ADD COLUMN "migrated" INTEGER NOT NULL DEFAULT 0`,
+  `ALTER TABLE "Conversation" ADD COLUMN "migrated" BOOLEAN NOT NULL DEFAULT false`,
 ];
 
 const creates = [
