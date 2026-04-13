@@ -1,27 +1,42 @@
 import { prisma } from "@/lib/prisma";
 
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+
 export async function buildUserContext(userId: string): Promise<string> {
-  const [profile, clothingItems, recentOutfits] = await Promise.all([
-    prisma.userProfile.findUnique({ where: { userId } }),
-    prisma.clothingItem.findMany({
-      where: { userId },
-      orderBy: { createdAt: "desc" },
-    }),
-    prisma.outfit.findMany({
-      where: { userId },
-      include: {
-        outfitItems: {
-          include: { clothingItem: true },
+  const thirtyDaysAgo = new Date(Date.now() - THIRTY_DAYS_MS);
+
+  const [profile, clothingItems, recentOutfits, memoryFacts, recentSummaries] =
+    await Promise.all([
+      prisma.userProfile.findUnique({ where: { userId } }),
+      prisma.clothingItem.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.outfit.findMany({
+        where: { userId },
+        include: {
+          outfitItems: {
+            include: { clothingItem: true },
+          },
+          outfitWears: {
+            orderBy: { wornAt: "desc" },
+            take: 5,
+          },
         },
-        outfitWears: {
-          orderBy: { wornAt: "desc" },
-          take: 5,
-        },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 20,
-    }),
-  ]);
+        orderBy: { createdAt: "desc" },
+        take: 20,
+      }),
+      prisma.userMemoryFact.findMany({
+        where: { userId },
+        orderBy: [{ confidence: "desc" }, { lastConfirmedAt: "desc" }],
+        take: 30,
+      }),
+      prisma.sessionSummary.findMany({
+        where: { userId, generatedAt: { gte: thirtyDaysAgo } },
+        orderBy: { generatedAt: "desc" },
+        take: 10,
+      }),
+    ]);
 
   const sections: string[] = [];
 
@@ -48,6 +63,29 @@ export async function buildUserContext(userId: string): Promise<string> {
     }
     if (profile.notes) profileLines.push(`- Note: ${profile.notes}`);
     sections.push(profileLines.join("\n"));
+  }
+
+  // Memory facts section
+  if (memoryFacts.length > 0) {
+    const factLines: string[] = ["## Ce știu despre tine (din conversații anterioare)"];
+    for (const fact of memoryFacts) {
+      const confidence = fact.confidence >= 3 ? " (sigur)" : fact.confidence >= 2 ? " (probabil)" : "";
+      factLines.push(`- [${fact.type}] ${fact.content}${confidence}`);
+    }
+    sections.push(factLines.join("\n"));
+  }
+
+  // Recent session summaries
+  if (recentSummaries.length > 0) {
+    const summaryLines: string[] = ["## Conversații recente (ultimele 30 zile)"];
+    for (const s of recentSummaries) {
+      const parts: string[] = [];
+      if (s.occasion) parts.push(`ocazie: ${s.occasion}`);
+      if (s.outfitChosenText) parts.push(`ținută aleasă: ${s.outfitChosenText}`);
+      if (s.outcome) parts.push(`rezultat: ${s.outcome}`);
+      if (parts.length) summaryLines.push(`- ${parts.join(" | ")}`);
+    }
+    if (summaryLines.length > 1) sections.push(summaryLines.join("\n"));
   }
 
   // Wardrobe section

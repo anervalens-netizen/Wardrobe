@@ -5,21 +5,18 @@ import { NextResponse } from "next/server";
 // "Today" = since last 02:00 local time (Europe/Bucharest)
 function getTodayStart(): Date {
   const now = new Date();
-  // Get current time in Bucharest
   const buch = new Date(
     now.toLocaleString("en-US", { timeZone: "Europe/Bucharest" })
   );
-  const resetHour = 2; // 02:00
+  const resetHour = 2;
 
   const todayStart = new Date(buch);
   todayStart.setHours(resetHour, 0, 0, 0);
 
-  // If current Bucharest time is before 02:00, go back to previous day's 02:00
   if (buch < todayStart) {
     todayStart.setDate(todayStart.getDate() - 1);
   }
 
-  // Convert back to UTC for DB comparison
   const localOffset = buch.getTime() - now.getTime();
   return new Date(todayStart.getTime() - localOffset);
 }
@@ -32,18 +29,29 @@ export async function GET() {
 
   const todayStart = getTodayStart();
 
-  const conversation = await prisma.conversation.findFirst({
+  const chatSession = await prisma.chatSession.findFirst({
     where: {
       userId: session.user.id,
-      createdAt: { gte: todayStart },
+      type: "daily",
+      closedAt: null,
+      startedAt: { gte: todayStart },
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: { startedAt: "desc" },
+    include: {
+      messages: {
+        orderBy: { createdAt: "asc" },
+      },
+    },
   });
 
-  if (!conversation) {
-    return NextResponse.json({ conversationId: null, messages: [] });
+  if (!chatSession) {
+    return NextResponse.json({ sessionId: null, messages: [] });
   }
 
-  const messages = JSON.parse(conversation.messages as string);
-  return NextResponse.json({ conversationId: conversation.id, messages });
+  const messages = chatSession.messages.map((m) => ({
+    role: m.role as "user" | "assistant",
+    content: m.content,
+  }));
+
+  return NextResponse.json({ sessionId: chatSession.id, messages });
 }

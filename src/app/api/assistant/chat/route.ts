@@ -13,7 +13,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Neautorizat" }, { status: 401 });
   }
 
-  const { messages, conversationId } = await req.json();
+  const { messages, sessionId } = await req.json();
+
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return NextResponse.json({ error: "Invalid messages" }, { status: 400 });
+  }
 
   const userContext = await buildUserContext(session.user.id);
   const basePrompt =
@@ -23,7 +27,32 @@ export async function POST(req: Request) {
       : FASHION_SYSTEM_PROMPT;
   const systemPrompt = `${basePrompt}\n\n---\n\n${userContext}`;
 
-  // Build full contents array for Gemini
+  // Resolve or create ChatSession
+  let activeSessionId: string = sessionId;
+  let isNewSession = false;
+
+  if (!activeSessionId) {
+    const newSession = await prisma.chatSession.create({
+      data: {
+        userId: session.user.id,
+        type: "daily",
+      },
+    });
+    activeSessionId = newSession.id;
+    isNewSession = true;
+  }
+
+  // Save the user message (last message in the array)
+  const lastUserMessage = messages[messages.length - 1];
+  await prisma.chatMessage.create({
+    data: {
+      sessionId: activeSessionId,
+      role: "user",
+      content: lastUserMessage.content,
+    },
+  });
+
+  // Build Gemini contents from full message history
   const contents: Content[] = messages.map((m: { role: string; content: string }) => ({
     role: m.role === "assistant" ? "model" : "user",
     parts: [{ text: m.content }],
@@ -61,27 +90,20 @@ export async function POST(req: Request) {
         );
       }
 
-      // Save conversation
-      const allMessages = [
-        ...messages,
-        { role: "assistant", content: fullResponse },
-      ];
+      // Save assistant message
+      await prisma.chatMessage.create({
+        data: {
+          sessionId: activeSessionId,
+          role: "assistant",
+          content: fullResponse,
+        },
+      });
 
-      if (conversationId) {
-        await prisma.conversation.update({
-          where: { id: conversationId },
-          data: { messages: JSON.stringify(allMessages) },
-        });
-      } else {
-        const conv = await prisma.conversation.create({
-          data: {
-            userId: session.user.id,
-            messages: JSON.stringify(allMessages),
-          },
-        });
+      // Emit sessionId if newly created
+      if (isNewSession) {
         controller.enqueue(
           encoder.encode(
-            `data: ${JSON.stringify({ conversationId: conv.id })}\n\n`
+            `data: ${JSON.stringify({ sessionId: activeSessionId })}\n\n`
           )
         );
       }

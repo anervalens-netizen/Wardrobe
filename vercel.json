@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/auto-close-sessions",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/compact-memory",
+      "schedule": "0 3 * * *"
+    }
+  ]
+}

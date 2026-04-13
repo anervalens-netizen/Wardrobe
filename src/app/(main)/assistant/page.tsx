@@ -12,11 +12,13 @@ import {
   PartyPopper,
   Briefcase,
   Gem,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface Message {
   role: "user" | "assistant";
@@ -75,7 +77,8 @@ export default function AssistantPage() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [sessionLoading, setSessionLoading] = useState(true);
-  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [closingSession, setClosingSession] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -86,7 +89,7 @@ export default function AssistantPage() {
       .then((data) => {
         if (data.messages?.length > 0) {
           setMessages(data.messages);
-          setConversationId(data.conversationId);
+          setSessionId(data.sessionId);
         }
       })
       .catch(() => {})
@@ -111,7 +114,7 @@ export default function AssistantPage() {
       const res = await fetch("/api/assistant/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: newMessages, conversationId }),
+        body: JSON.stringify({ messages: newMessages, sessionId }),
       });
 
       if (!res.ok) throw new Error("fetch_error");
@@ -138,7 +141,7 @@ export default function AssistantPage() {
               assistantContent += parsed.text;
               setMessages([...newMessages, { role: "assistant", content: assistantContent }]);
             }
-            if (parsed.conversationId) setConversationId(parsed.conversationId);
+            if (parsed.sessionId) setSessionId(parsed.sessionId);
           } catch {
             // skip malformed chunks
           }
@@ -151,6 +154,27 @@ export default function AssistantPage() {
       ]);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function closeSession() {
+    if (!sessionId || closingSession) return;
+    setClosingSession(true);
+    try {
+      const res = await fetch(`/api/sessions/${sessionId}/close`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ closureMethod: "user" }),
+      });
+      if (res.ok) {
+        setMessages([]);
+        setSessionId(null);
+        toast.success("Conversație închisă");
+      }
+    } catch {
+      toast.error("Eroare la închidere");
+    } finally {
+      setClosingSession(false);
     }
   }
 
@@ -169,7 +193,7 @@ export default function AssistantPage() {
         <div className="w-9 h-9 rounded-full gradient-teal flex items-center justify-center shadow-ava-sm">
           <Sparkles className="h-4 w-4 text-white" />
         </div>
-        <div>
+        <div className="flex-1">
           <h2 className="font-heading italic text-lg text-foreground leading-tight">
             {isAdam ? "Adam" : "Ava"}
           </h2>
@@ -177,6 +201,22 @@ export default function AssistantPage() {
             AI Stylist · Online
           </p>
         </div>
+        {sessionId && messages.length >= 2 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={closeSession}
+            disabled={closingSession || loading}
+            className="text-muted-foreground hover:text-foreground gap-1.5"
+          >
+            {closingSession ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <X className="h-3.5 w-3.5" />
+            )}
+            <span className="text-xs">Închide</span>
+          </Button>
+        )}
       </div>
 
       {/* Messages — scrollable */}
