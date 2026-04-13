@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export function RerunOnboardingButton() {
   const router = useRouter();
@@ -22,6 +23,7 @@ export function RerunOnboardingButton() {
           await refreshSession();
           router.push("/onboarding");
         } else {
+          toast.error("Eroare la resetarea onboarding-ului");
           setBusy(false);
         }
       }}
