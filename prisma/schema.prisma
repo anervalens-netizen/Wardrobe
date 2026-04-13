@@ -207,7 +207,7 @@ model SessionSummary {
 
   session ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  outfit  Outfit?     @relation(fields: [outfitId], references: [id])
+  outfit  Outfit?     @relation(fields: [outfitId], references: [id], onDelete: SetNull)
 
   @@index([userId, generatedAt])
 }
