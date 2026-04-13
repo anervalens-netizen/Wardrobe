@@ -22,7 +22,7 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith("/login") || pathname.startsWith("/register");
   const isPublicApi =
     pathname.startsWith("/api/auth") ||
-    pathname.startsWith("/api/cron/") ||
+    pathname.startsWith("/api/cron/") || // bypasses session cookie — handlers MUST validate CRON_SECRET
     pathname === "/api/register" ||
     pathname === "/api/debug-env";
   const isPublicPage = pathname === "/";
