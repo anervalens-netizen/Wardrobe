@@ -93,6 +93,11 @@
 }
 
 /* Persona Adam — Navy / Cognac */
+[data-persona="adam"],
+[data-persona="adam"].dark {
+  --font-heading: var(--font-heading-adam);
+}
+
 [data-persona="adam"] {
   --background: oklch(0.975 0.005 240);
   --foreground: oklch(0.15 0.04 240);

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Serif_Display, Nunito } from "next/font/google";
+import { DM_Serif_Display, Nunito, Cormorant_Garamond } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "@/components/providers";
 import { SwRegister } from "@/components/sw-register";
@@ -16,6 +16,12 @@ const nunito = Nunito({
   variable: "--font-sans",
   subsets: ["latin"],
   weight: ["300", "400", "600", "700"],
+});
+
+const cormorantGaramond = Cormorant_Garamond({
+  variable: "--font-heading-adam",
+  subsets: ["latin"],
+  weight: ["300", "400", "600"],
 });
 
 export const metadata: Metadata = {
@@ -43,7 +49,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ro" className={`${dmSerifDisplay.variable} ${nunito.variable} h-full`}>
+    <html lang="ro" className={`${dmSerifDisplay.variable} ${nunito.variable} ${cormorantGaramond.variable} h-full`}>
       <body className="min-h-full bg-background text-foreground antialiased">
         <Providers>
           {children}

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Save, User } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { Loader2, Save, User, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,6 +50,7 @@ interface Profile {
   name: string | null;
   sex: string | null;
   ageBand: string | null;
+  themeVariant: string | null;
   heightCm: number | null;
   weightKg: number | null;
   bodyType: string | null;
@@ -62,6 +64,10 @@ interface Profile {
 }
 
 export default function ProfilePage() {
+  const { data: session } = useSession();
+  const isAdam =
+    process.env.NEXT_PUBLIC_PERSONA_ADAM_ENABLED === "true" &&
+    session?.user?.sex === "male";
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -118,6 +124,8 @@ export default function ProfilePage() {
 
     if (res.ok) {
       toast.success("Profil salvat!");
+      // Reload so the server layout can re-read themeVariant and apply/remove dark class
+      window.location.reload();
     } else {
       toast.error("Eroare la salvare");
     }
@@ -433,6 +441,36 @@ export default function ProfilePage() {
         )}
         Salvează profilul
       </Button>
+
+      {/* Theme toggle — Adam only */}
+      {isAdam && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Temă vizuală</CardTitle>
+            <CardDescription>Alege între modul luminos și întunecat</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-3">
+              <Button
+                variant={profile?.themeVariant !== "dark" ? "default" : "outline"}
+                className="flex-1 gap-2"
+                onClick={() => setProfile({ ...profile!, themeVariant: "light" })}
+              >
+                <Sun className="h-4 w-4" />
+                Luminos
+              </Button>
+              <Button
+                variant={profile?.themeVariant === "dark" ? "default" : "outline"}
+                className="flex-1 gap-2"
+                onClick={() => setProfile({ ...profile!, themeVariant: "dark" })}
+              >
+                <Moon className="h-4 w-4" />
+                Întunecat
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <section className="mt-8 pt-6 border-t">
         <h2 className="font-semibold mb-2">AI Stylist</h2>

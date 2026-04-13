@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import {
   Send,
   Loader2,
@@ -9,6 +10,8 @@ import {
   Calendar,
   Sun,
   PartyPopper,
+  Briefcase,
+  Gem,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,7 +23,7 @@ interface Message {
   content: string;
 }
 
-const quickPrompts = [
+const quickPromptsAva = [
   { icon: Sun, label: "Ce să port azi?", prompt: "Ce să port azi la birou?" },
   {
     icon: PartyPopper,
@@ -39,7 +42,35 @@ const quickPrompts = [
   },
 ];
 
+const quickPromptsAdam = [
+  {
+    icon: Briefcase,
+    label: "Business meeting",
+    prompt: "Cum mă îmbrac la o întâlnire de business?",
+  },
+  {
+    icon: Gem,
+    label: "Cină elegantă",
+    prompt: "Recomandă o ținută pentru cina elegantă",
+  },
+  {
+    icon: Calendar,
+    label: "Smart-casual weekend",
+    prompt: "Outfit pentru weekend smart-casual",
+  },
+  {
+    icon: Shirt,
+    label: "Cum combin sacoul?",
+    prompt: "Cum combin un sacou navy cu ce am în garderobă?",
+  },
+];
+
 export default function AssistantPage() {
+  const { data: session } = useSession();
+  const isAdam =
+    process.env.NEXT_PUBLIC_PERSONA_ADAM_ENABLED === "true" &&
+    session?.user?.sex === "male";
+  const quickPrompts = isAdam ? quickPromptsAdam : quickPromptsAva;
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -139,7 +170,9 @@ export default function AssistantPage() {
           <Sparkles className="h-4 w-4 text-white" />
         </div>
         <div>
-          <h2 className="font-heading italic text-lg text-foreground leading-tight">Ava</h2>
+          <h2 className="font-heading italic text-lg text-foreground leading-tight">
+            {isAdam ? "Adam" : "Ava"}
+          </h2>
           <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
             AI Stylist · Online
           </p>
@@ -157,9 +190,13 @@ export default function AssistantPage() {
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
               <Sparkles className="h-8 w-8 text-primary" />
             </div>
-            <h2 className="text-xl font-semibold mb-2">Salut! Sunt Ava</h2>
+            <h2 className="text-xl font-semibold mb-2">
+              {isAdam ? "Bună ziua! Sunt Adam" : "Salut! Sunt Ava"}
+            </h2>
             <p className="text-muted-foreground mb-8 max-w-md">
-              Stilistul tău personal AI — întreabă-mă orice despre ținute, culori sau ce să porți azi.
+              {isAdam
+                ? "Consultantul tău de stil — spune-mi cu ce ocazie ai nevoie de o ținută și îți ofer recomandări precise."
+                : "Stilistul tău personal AI — întreabă-mă orice despre ținute, culori sau ce să porți azi."}
             </p>
             <div className="grid grid-cols-2 gap-3 w-full max-w-md">
               {quickPrompts.map((qp) => (
