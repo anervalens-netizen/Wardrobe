@@ -35,19 +35,31 @@ export function OnboardingChat() {
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const startedRef = useRef(false);
+  const abortRef = useRef<AbortController | null>(null);
+  const streamingRef = useRef(false);
+  const pendingHistoryRef = useRef<Msg[] | null>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, streaming]);
 
+  useEffect(() => {
+    return () => { abortRef.current?.abort(); };
+  }, []);
+
   async function sendNext(history: Msg[]) {
+    if (streamingRef.current) return;
+    streamingRef.current = true;
     setStreaming(true);
     setError(null);
     try {
+      const controller = new AbortController();
+      abortRef.current = controller;
       const res = await fetch("/api/onboarding/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: history }),
+        signal: controller.signal,
       });
       if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`);
 
@@ -59,7 +71,10 @@ export function OnboardingChat() {
 
       while (true) {
         const { value, done } = await reader.read();
-        if (done) break;
+        if (done) {
+          buffered += decoder.decode(); // flush remaining bytes (handles multi-byte UTF-8 split at boundary)
+          break;
+        }
         buffered += decoder.decode(value, { stream: true });
         const events = buffered.split("\n\n");
         buffered = events.pop() ?? "";
@@ -84,12 +99,16 @@ export function OnboardingChat() {
       }
 
       if (assistantText.includes(CLOSING_MARKER)) {
-        await complete([...history, { role: "assistant", content: assistantText }]);
+        const finalHistory = [...history, { role: "assistant" as const, content: assistantText }];
+        pendingHistoryRef.current = finalHistory;
+        await complete(finalHistory);
       }
     } catch (e) {
+      if (e instanceof DOMException && e.name === "AbortError") return;
       console.error(e);
       setError("Eroare de conexiune. Încearcă din nou.");
     } finally {
+      streamingRef.current = false;
       setStreaming(false);
     }
   }
@@ -175,6 +194,18 @@ export function OnboardingChat() {
       </div>
 
       {error && <div className="text-sm text-destructive">{error}</div>}
+      {error && pendingHistoryRef.current && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            if (pendingHistoryRef.current) void complete(pendingHistoryRef.current);
+          }}
+          disabled={completing}
+        >
+          Încearcă din nou să salvezi
+        </Button>
+      )}
 
       <div className="flex items-center gap-2">
         <Input
