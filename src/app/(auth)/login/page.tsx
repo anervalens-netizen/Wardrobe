@@ -39,10 +39,10 @@ export default function LoginPage() {
     <div className="bg-white/75 backdrop-blur-md rounded-3xl shadow-ava-lg border border-white/60 p-8">
       {/* Brand */}
       <div className="flex flex-col items-center mb-8">
-        <Image src="/logo.png" alt="Ava" width={56} height={56} className="object-contain mb-3" />
-        <h1 className="font-heading italic text-4xl text-primary">Ava</h1>
+        <Image src="/logo.png" alt="AI Stylist Advisor" width={56} height={56} className="object-contain mb-3" />
+        <h1 className="font-heading italic text-4xl text-primary">AI Stylist Advisor</h1>
         <p className="text-[11px] uppercase tracking-[3px] text-muted-foreground font-semibold mt-1">
-          Your personal AI stylist
+          Stilistul tău AI personal pentru garderoba ta digitală
         </p>
       </div>
 
