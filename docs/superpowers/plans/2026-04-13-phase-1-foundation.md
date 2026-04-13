@@ -691,7 +691,10 @@ async function migrateOne(prisma: PrismaClient, row: {
     return;
   }
 
-  const timestamps = distributeTimestamps(messages.length, row.createdAt, row.updatedAt);
+  const validMessages = messages.filter(
+    (m) => m.role === "user" || m.role === "assistant",
+  );
+  const timestamps = distributeTimestamps(validMessages.length, row.createdAt, row.updatedAt);
 
   await prisma.$transaction(async (tx) => {
     const chatSession = await tx.chatSession.create({
@@ -705,9 +708,8 @@ async function migrateOne(prisma: PrismaClient, row: {
       },
     });
 
-    for (let i = 0; i < messages.length; i++) {
-      const m = messages[i];
-      if (m.role !== "user" && m.role !== "assistant") continue;
+    for (let i = 0; i < validMessages.length; i++) {
+      const m = validMessages[i];
       await tx.chatMessage.create({
         data: {
           sessionId: chatSession.id,
@@ -757,6 +759,10 @@ main().catch(async (e) => {
   console.error(e);
   process.exit(1);
 });
+
+// Note: Prisma client is disconnected at the end of main(). On error the process
+// exits immediately; Node closes the libsql socket on exit, so no explicit
+// disconnect is needed here.
 ```
 
 - [ ] **Step 3: Verify it compiles (type-check only, do NOT run)**
