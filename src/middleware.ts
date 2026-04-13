@@ -16,7 +16,7 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith("/api/cron/") || // bypasses session cookie — handlers MUST validate CRON_SECRET
     pathname === "/api/register" ||
     pathname === "/api/debug-env";
-  const isOnboardingSurface = pathname === "/onboarding" || pathname.startsWith("/api/onboarding/");
+  const isOnboardingSurface = pathname.startsWith("/onboarding") || pathname.startsWith("/api/onboarding/");
   const isPublicPage = pathname === "/";
   const isApi = pathname.startsWith("/api/");
 
@@ -43,6 +43,7 @@ export async function middleware(req: NextRequest) {
     !isPublicPage &&
     token.onboardingCompleted === false
   ) {
+    if (isApi) return NextResponse.json({ error: "Onboarding required" }, { status: 403 });
     return NextResponse.redirect(new URL("/onboarding", req.url));
   }
 
