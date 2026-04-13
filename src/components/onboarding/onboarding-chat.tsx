@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,12 +25,12 @@ function splitQuickReplies(content: string): { text: string; options: string[] }
 const CLOSING_MARKER = "Hai să-ți construim împreună garderoba digitală";
 
 export function OnboardingChat() {
-  const router = useRouter();
   const { update: refreshSession } = useSession();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [completing, setCompleting] = useState(false);
+  const [conversationDone, setConversationDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const startedRef = useRef(false);
@@ -99,6 +98,7 @@ export function OnboardingChat() {
       }
 
       if (assistantText.includes(CLOSING_MARKER)) {
+        setConversationDone(true);
         const finalHistory = [...history, { role: "assistant" as const, content: assistantText }];
         pendingHistoryRef.current = finalHistory;
         await complete(finalHistory);
@@ -126,12 +126,12 @@ export function OnboardingChat() {
         const body = await res.json().catch(() => ({}));
         throw new Error(body.error ?? `HTTP ${res.status}`);
       }
-      // Refresh the NextAuth JWT so `onboardingCompleted` becomes true on the
-      // client before the dashboard nav — otherwise middleware's stale-claim
-      // check could bounce the user back to /onboarding on the first request.
+      // Refresh the NextAuth JWT so `onboardingCompleted` becomes true in the
+      // cookie before dashboard nav. router.push (soft nav) may fire before
+      // the updated cookie is committed; window.location.href forces a full
+      // reload so middleware always reads the fresh JWT.
       await refreshSession();
-      router.push("/dashboard");
-      router.refresh();
+      window.location.href = "/dashboard";
     } catch (e) {
       console.error(e);
       setError(e instanceof Error ? e.message : "Eroare la finalizare.");
@@ -148,13 +148,13 @@ export function OnboardingChat() {
 
   function handleSend() {
     const trimmed = input.trim();
-    if (!trimmed || streaming || completing) return;
+    if (!trimmed || streaming || completing || conversationDone) return;
     setInput("");
     pushUserMessage(trimmed);
   }
 
   function handleSkip() {
-    if (streaming || completing) return;
+    if (streaming || completing || conversationDone) return;
     pushUserMessage("[SKIP]");
   }
 
@@ -218,12 +218,12 @@ export function OnboardingChat() {
             }
           }}
           placeholder="Scrie răspunsul tău…"
-          disabled={streaming || completing}
+          disabled={streaming || completing || conversationDone}
         />
-        <Button onClick={handleSend} disabled={streaming || completing || !input.trim()}>
+        <Button onClick={handleSend} disabled={streaming || completing || conversationDone || !input.trim()}>
           Trimite
         </Button>
-        <Button variant="ghost" onClick={handleSkip} disabled={streaming || completing}>
+        <Button variant="ghost" onClick={handleSkip} disabled={streaming || completing || conversationDone}>
           Sări peste
         </Button>
       </div>
