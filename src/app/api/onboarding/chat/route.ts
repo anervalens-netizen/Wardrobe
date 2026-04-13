@@ -44,7 +44,7 @@ export async function POST(req: Request) {
     messages: { role: "user" | "assistant"; content: string }[];
   };
 
-  if (!Array.isArray(messages) || messages.length === 0) {
+  if (!Array.isArray(messages)) {
     return NextResponse.json({ error: "Messages invalid" }, { status: 400 });
   }
 
