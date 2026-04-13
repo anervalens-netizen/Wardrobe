@@ -19,13 +19,17 @@ model User {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  accounts            Account[]
-  sessions      Session[]
-  profile       UserProfile?
-  clothingItems ClothingItem[]
-  outfits       Outfit[]
-  outfitWears   OutfitWear[]
-  conversations Conversation[]
+  accounts         Account[]
+  sessions         Session[]
+  profile          UserProfile?
+  clothingItems    ClothingItem[]
+  outfits          Outfit[]
+  outfitWears      OutfitWear[]
+  conversations    Conversation[]
+  chatSessions     ChatSession[]
+  sessionSummaries SessionSummary[]
+  memoryFacts      UserMemoryFact[]
+  compactionLogs   MemoryCompactionLog[]
 }
 
 model Account {
@@ -65,23 +69,23 @@ model VerificationToken {
 }
 
 model UserProfile {
-  id               String   @id @default(cuid())
-  userId           String   @unique
-  heightCm         Int?
-  weightKg         Int?
-  bodyType         String?
-  skinTone         String?
-  hairColor        String?
-  eyeColor         String?
-  favoriteColors   String?
-  avoidColors      String?
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  heightCm           Int?
+  weightKg           Int?
+  bodyType           String?
+  skinTone           String?
+  hairColor          String?
+  eyeColor           String?
+  favoriteColors     String?
+  avoidColors        String?
   stylePreferences   String?
   notes              String?
   themeVariant       String?
   preferredOccasions String?
   lifestyleNotes     String?
   createdAt          DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  updatedAt          DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -122,9 +126,10 @@ model Outfit {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  outfitItems OutfitItem[]
-  outfitWears OutfitWear[]
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  outfitItems      OutfitItem[]
+  outfitWears      OutfitWear[]
+  sessionSummaries SessionSummary[]
 }
 
 model OutfitItem {
@@ -157,6 +162,77 @@ model Conversation {
   migrated  Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ChatSession {
+  id            String    @id @default(cuid())
+  userId        String
+  type          String
+  title         String?
+  startedAt     DateTime  @default(now())
+  closedAt      DateTime?
+  closureMethod String?
+
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages ChatMessage[]
+  summary  SessionSummary?
+
+  @@index([userId, closedAt])
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  sessionId String
+  role      String
+  content   String
+  createdAt DateTime @default(now())
+
+  session ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+}
+
+model SessionSummary {
+  id               String   @id @default(cuid())
+  sessionId        String   @unique
+  userId           String
+  occasion         String?
+  outfitChosenText String?
+  outfitId         String?
+  outcome          String?
+  keyInsights      String?
+  generatedAt      DateTime @default(now())
+
+  session ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  outfit  Outfit?     @relation(fields: [outfitId], references: [id])
+
+  @@index([userId, generatedAt])
+}
+
+model UserMemoryFact {
+  id              String   @id @default(cuid())
+  userId          String
+  type            String
+  content         String
+  confidence      Int      @default(1)
+  sourceCount     Int      @default(1)
+  lastConfirmedAt DateTime @default(now())
+  createdAt       DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+}
+
+model MemoryCompactionLog {
+  id                String   @id @default(cuid())
+  userId            String
+  sessionsCompacted Int
+  factsCreated      Int
+  runAt             DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
