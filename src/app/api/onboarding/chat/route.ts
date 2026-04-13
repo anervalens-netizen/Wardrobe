@@ -5,22 +5,35 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import type { Content } from "@google/genai";
 
+function parseStringOrArray(val: string): string {
+  try {
+    const parsed = JSON.parse(val);
+    return Array.isArray(parsed) ? parsed.join(", ") : val;
+  } catch {
+    return val;
+  }
+}
+
 function profileToMarkdown(p: {
   favoriteColors?: string | null;
   avoidColors?: string | null;
+  stylePreferences?: string | null;
   preferredOccasions?: string | null;
   lifestyleNotes?: string | null;
   bodyType?: string | null;
 }): string | null {
   const lines: string[] = [];
-  if (p.favoriteColors) lines.push(`- Culori preferate: ${p.favoriteColors}`);
-  if (p.avoidColors) lines.push(`- Culori de evitat: ${p.avoidColors}`);
+  if (p.stylePreferences) lines.push(`- Stiluri preferate: ${parseStringOrArray(p.stylePreferences)}`);
+  if (p.favoriteColors) lines.push(`- Culori preferate: ${parseStringOrArray(p.favoriteColors)}`);
+  if (p.avoidColors) lines.push(`- Culori de evitat: ${parseStringOrArray(p.avoidColors)}`);
   if (p.preferredOccasions) lines.push(`- Ocazii: ${p.preferredOccasions}`);
   if (p.bodyType) lines.push(`- Tip corp: ${p.bodyType}`);
   if (p.lifestyleNotes) lines.push(`- Note: ${p.lifestyleNotes}`);
   return lines.length > 0 ? lines.join("\n") : null;
 }
 
+// Transcript is intentionally not persisted here — it stays client-side until
+// the user completes onboarding and POSTs to /api/onboarding/complete.
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
