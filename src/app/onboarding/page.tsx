@@ -12,7 +12,9 @@ export default async function OnboardingPage() {
     select: { onboardingCompleted: true },
   });
 
-  if (user?.onboardingCompleted) {
+  if (!user) redirect("/login");
+
+  if (user.onboardingCompleted) {
     redirect("/dashboard");
   }
 
