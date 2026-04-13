@@ -38,15 +38,34 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id;
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { onboardingCompleted: true, sex: true },
+        });
+        token.onboardingCompleted = dbUser?.onboardingCompleted ?? false;
+        token.sex = dbUser?.sex ?? null;
+      }
+      // Allow client-side useSession().update() to refresh DB-backed claims.
+      if (trigger === "update" && token.id) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { onboardingCompleted: true, sex: true },
+        });
+        if (dbUser) {
+          token.onboardingCompleted = dbUser.onboardingCompleted;
+          token.sex = dbUser.sex;
+        }
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
+        session.user.onboardingCompleted = Boolean(token.onboardingCompleted);
+        session.user.sex = (token.sex ?? null) as string | null;
       }
       return session;
     },
