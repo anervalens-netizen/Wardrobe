@@ -7,7 +7,7 @@ const globalForGoogle = globalThis as unknown as {
 export const googleAI =
   globalForGoogle.googleAI ??
   new GoogleGenAI({
-    apiKey: process.env.GOOGLE_AI_API_KEY || "",
+    apiKey: (process.env.GOOGLE_AI_API_KEY || "").trim(),
   });
 
 if (process.env.NODE_ENV !== "production")

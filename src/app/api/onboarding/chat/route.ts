@@ -48,9 +48,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Messages invalid" }, { status: 400 });
   }
 
-  const existingProfile = await prisma.userProfile.findUnique({
-    where: { userId: session.user.id },
-  });
+  let existingProfile = null;
+  try {
+    existingProfile = await prisma.userProfile.findUnique({
+      where: { userId: session.user.id },
+    });
+  } catch (err) {
+    console.error("Onboarding DB error:", err);
+    return NextResponse.json({ error: "Eroare server" }, { status: 500 });
+  }
+
   const systemPrompt = buildOnboardingSystemPrompt(
     existingProfile ? profileToMarkdown(existingProfile) : null
   );
@@ -59,6 +66,12 @@ export async function POST(req: Request) {
     role: m.role === "assistant" ? "model" : "user",
     parts: [{ text: m.content }],
   }));
+
+  // Gemini requires at least one user turn — inject a start signal when
+  // the client opens the conversation with an empty history.
+  if (contents.length === 0) {
+    contents.push({ role: "user", parts: [{ text: "start" }] });
+  }
 
   const encoder = new TextEncoder();
   const readable = new ReadableStream({
