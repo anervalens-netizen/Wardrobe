@@ -2,10 +2,10 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Ava — Your personal AI stylist",
-    short_name: "Ava",
+    name: "AI Stylist Advisor",
+    short_name: "AI Stylist",
     description:
-      "Organizează-ți garderoba și primește recomandări de ținute de la asistentul tău AI de stil personal.",
+      "Stilistul tău AI personal pentru garderoba ta digitală",
     start_url: "/",
     display: "standalone",
     background_color: "#faf8ff",

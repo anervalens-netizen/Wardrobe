@@ -10,7 +10,7 @@ export default function LandingPage() {
         <div className="container mx-auto flex items-center justify-between px-4 py-4">
           <div className="flex items-center gap-2">
             <Sparkles className="h-7 w-7 text-primary" />
-            <span className="text-xl font-bold">Ava</span>
+            <span className="text-xl font-bold">AI Stylist Advisor</span>
           </div>
           <div className="flex items-center gap-3">
             <Link href="/login">
@@ -27,7 +27,7 @@ export default function LandingPage() {
       <main className="flex-1">
         <section className="container mx-auto px-4 py-20 md:py-32 text-center">
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-            Ava — Stilistul tău AI
+            Stilistul tău AI personal
             <br />
             <span className="text-muted-foreground">pentru garderoba ta digitală</span>
           </h1>
@@ -82,7 +82,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t py-6 text-center text-sm text-muted-foreground">
-        <p>Ava &copy; {new Date().getFullYear()}</p>
+        <p>AI Stylist Advisor &copy; {new Date().getFullYear()}</p>
       </footer>
     </div>
   );

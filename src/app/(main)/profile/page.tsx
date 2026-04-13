@@ -30,6 +30,7 @@ import {
 } from "@/lib/constants";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { RerunOnboardingButton } from "@/components/onboarding/rerun-onboarding-button";
 
 interface Profile {
   heightCm: number | null;
@@ -358,6 +359,14 @@ export default function ProfilePage() {
         )}
         Salvează profilul
       </Button>
+
+      <section className="mt-8 pt-6 border-t">
+        <h2 className="font-semibold mb-2">AI Stylist</h2>
+        <p className="text-sm text-muted-foreground mb-3">
+          Vorbește din nou cu stilistul tău dacă vrei să-ți actualizezi preferințele.
+        </p>
+        <RerunOnboardingButton />
+      </section>
     </div>
   );
 }
