@@ -38,6 +38,7 @@ export async function POST(req: Request) {
     preferredOccasions: profile.preferredOccasions.length > 0 ? JSON.stringify(profile.preferredOccasions) : null,
     lifestyleNotes: profile.lifestyleNotes || null,
     bodyType: profile.bodyType,
+    ageBand: profile.ageBand,
   };
 
   try {

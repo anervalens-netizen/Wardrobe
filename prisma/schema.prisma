@@ -84,6 +84,7 @@ model UserProfile {
   themeVariant       String?
   preferredOccasions String?
   lifestyleNotes     String?
+  ageBand            String?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 

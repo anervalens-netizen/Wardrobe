@@ -21,13 +21,14 @@ const navItems = [
   { href: "/dashboard", label: "Acasă", icon: LayoutDashboard },
   { href: "/wardrobe", label: "Garderobă", icon: Shirt },
   { href: "/add-item", label: "Adaugă piesă", icon: PlusCircle },
-  { href: "/assistant", label: "Ava AI", icon: MessageSquare },
+  { href: "/assistant", label: "AI", icon: MessageSquare },
   { href: "/history", label: "Istoric", icon: CalendarDays },
   { href: "/profile", label: "Profil", icon: User },
 ];
 
-export function Sidebar() {
+export function Sidebar({ persona = "ava" }: { persona?: "ava" | "adam" }) {
   const pathname = usePathname();
+  const isAdam = persona === "adam";
 
   return (
     <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 border-r bg-sidebar">
@@ -36,13 +37,15 @@ export function Sidebar() {
         <div className="flex items-center gap-3 px-6 py-5">
           <Image
             src="/logo.png"
-            alt="Ava"
+            alt={isAdam ? "Adam" : "Ava"}
             width={32}
             height={32}
             className="object-contain"
           />
           <div>
-            <span className="font-heading italic text-xl text-primary">Ava</span>
+            <span className="font-heading italic text-xl text-primary">
+              {isAdam ? "Adam" : "Ava"}
+            </span>
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground leading-none mt-0.5">
               AI Stylist
             </p>
@@ -56,6 +59,12 @@ export function Sidebar() {
           {navItems.map((item) => {
             const isActive =
               pathname === item.href || pathname.startsWith(item.href + "/");
+            const label =
+              item.href === "/assistant"
+                ? isAdam
+                  ? "Adam AI"
+                  : "Ava AI"
+                : item.label;
             return (
               <Link
                 key={item.href}
@@ -73,7 +82,7 @@ export function Sidebar() {
                     isActive ? "text-primary" : "text-muted-foreground"
                   )}
                 />
-                {item.label}
+                {label}
                 {item.href === "/assistant" && (
                   <span className="ml-auto text-[9px] bg-secondary/20 text-secondary font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide">
                     AI

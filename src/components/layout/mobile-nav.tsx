@@ -8,19 +8,26 @@ import {
   PlusCircle,
   MessageSquare,
   User,
+  LogOut,
 } from "lucide-react";
+import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 
-const navItems = [
-  { href: "/dashboard", label: "Acasă", icon: LayoutDashboard },
-  { href: "/wardrobe", label: "Garderobă", icon: Shirt },
-  { href: "/add-item", label: null, icon: PlusCircle, isFab: true },
-  { href: "/assistant", label: "Ava AI", icon: MessageSquare },
-  { href: "/profile", label: "Profil", icon: User },
-];
-
-export function MobileNav() {
+export function MobileNav({ persona = "ava" }: { persona?: "ava" | "adam" }) {
   const pathname = usePathname();
+  const isAdam = persona === "adam";
+
+  const navItems = [
+    { href: "/dashboard", label: "Acasă", icon: LayoutDashboard },
+    { href: "/wardrobe", label: "Garderobă", icon: Shirt },
+    { href: "/add-item", label: null, icon: PlusCircle, isFab: true },
+    {
+      href: "/assistant",
+      label: isAdam ? "Adam AI" : "Ava AI",
+      icon: MessageSquare,
+    },
+    { href: "/profile", label: "Profil", icon: User },
+  ];
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-border shadow-ava">
@@ -57,6 +64,16 @@ export function MobileNav() {
             </Link>
           );
         })}
+
+        {/* Logout button */}
+        <button
+          type="button"
+          onClick={() => signOut({ callbackUrl: "/login" })}
+          className="flex flex-col items-center gap-1 py-3 px-3 text-[10px] font-semibold text-muted-foreground transition-colors hover:text-destructive"
+        >
+          <LogOut className="h-5 w-5" />
+          Ieșire
+        </button>
       </div>
     </nav>
   );

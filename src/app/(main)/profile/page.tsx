@@ -32,7 +32,23 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { RerunOnboardingButton } from "@/components/onboarding/rerun-onboarding-button";
 
+const AGE_BANDS = [
+  { value: "under_25", label: "Sub 25 ani" },
+  { value: "25_34", label: "25–34 ani" },
+  { value: "35_44", label: "35–44 ani" },
+  { value: "45_54", label: "45–54 ani" },
+  { value: "55_plus", label: "55+ ani" },
+];
+
+const SEX_OPTIONS = [
+  { value: "female", label: "Feminin" },
+  { value: "male", label: "Masculin" },
+];
+
 interface Profile {
+  name: string | null;
+  sex: string | null;
+  ageBand: string | null;
   heightCm: number | null;
   weightKg: number | null;
   bodyType: string | null;
@@ -137,13 +153,71 @@ export default function ProfilePage() {
         </Button>
       </div>
 
-      {/* Physical Info */}
+      {/* Personal Info — from onboarding */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <User className="h-5 w-5" />
-            Informații fizice
+            Informații personale
           </CardTitle>
+          <CardDescription>
+            Date completate în timpul onboarding-ului
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>Nume preferat</Label>
+            <Input
+              placeholder="ex: Maria"
+              value={profile?.name || ""}
+              onChange={(e) => setProfile({ ...profile!, name: e.target.value })}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Gen</Label>
+              <Select
+                value={profile?.sex || ""}
+                onValueChange={(v) => setProfile({ ...profile!, sex: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Alege" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SEX_OPTIONS.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>
+                      {o.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Grupă de vârstă</Label>
+              <Select
+                value={profile?.ageBand || ""}
+                onValueChange={(v) => setProfile({ ...profile!, ageBand: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Alege" />
+                </SelectTrigger>
+                <SelectContent>
+                  {AGE_BANDS.map((b) => (
+                    <SelectItem key={b.value} value={b.value}>
+                      {b.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Physical Info */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Informații fizice</CardTitle>
           <CardDescription>
             Ajută asistentul să facă recomandări potrivite corpului tău
           </CardDescription>

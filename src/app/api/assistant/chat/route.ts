@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { googleAI } from "@/lib/ai/client";
 import { FASHION_SYSTEM_PROMPT } from "@/lib/ai/fashion-system-prompt";
+import { FASHION_SYSTEM_PROMPT_ADAM } from "@/lib/ai/fashion-system-prompt-adam";
 import { buildUserContext } from "@/lib/ai/context-builder";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
@@ -15,7 +16,12 @@ export async function POST(req: Request) {
   const { messages, conversationId } = await req.json();
 
   const userContext = await buildUserContext(session.user.id);
-  const systemPrompt = `${FASHION_SYSTEM_PROMPT}\n\n---\n\n${userContext}`;
+  const basePrompt =
+    process.env.NEXT_PUBLIC_PERSONA_ADAM_ENABLED === "true" &&
+    session.user.sex === "male"
+      ? FASHION_SYSTEM_PROMPT_ADAM
+      : FASHION_SYSTEM_PROMPT;
+  const systemPrompt = `${basePrompt}\n\n---\n\n${userContext}`;
 
   // Build full contents array for Gemini
   const contents: Content[] = messages.map((m: { role: string; content: string }) => ({

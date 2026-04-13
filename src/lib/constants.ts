@@ -7,6 +7,21 @@ export const CATEGORIES = [
   { value: "accessories", label: "Accesorii" },
 ] as const;
 
+export const CATEGORIES_ADAM = [
+  { value: "costume", label: "Costume" },
+  { value: "sacouri", label: "Sacouri & Blazere" },
+  { value: "camasi", label: "Cămăși" },
+  { value: "tricouri", label: "Tricouri & Polo" },
+  { value: "pantaloni", label: "Pantaloni" },
+  { value: "outerwear", label: "Outerwear" },
+  { value: "pantofi", label: "Pantofi" },
+  { value: "accesorii", label: "Accesorii" },
+] as const;
+
+export function getCategories(sex?: string | null) {
+  return sex === "male" ? CATEGORIES_ADAM : CATEGORIES;
+}
+
 export const SUBCATEGORIES: Record<string, { value: string; label: string }[]> = {
   tops: [
     { value: "tricou", label: "Tricou" },
