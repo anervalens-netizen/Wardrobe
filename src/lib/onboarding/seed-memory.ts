@@ -28,8 +28,13 @@ export async function seedMemoryFromProfile(userId: string, profile: OnboardingP
 
   if (facts.length === 0) return 0;
 
-  await prisma.userMemoryFact.createMany({
-    data: facts.map((f) => ({ userId, type: f.type, content: f.content, confidence: 3, sourceCount: 1 })),
-  });
+  await prisma.$transaction([
+    prisma.userMemoryFact.deleteMany({
+      where: { userId, type: { in: ["preference_strong", "aversion", "essential"] } },
+    }),
+    prisma.userMemoryFact.createMany({
+      data: facts.map((f) => ({ userId, type: f.type, content: f.content, confidence: 3, sourceCount: 1 })),
+    }),
+  ]);
   return facts.length;
 }
