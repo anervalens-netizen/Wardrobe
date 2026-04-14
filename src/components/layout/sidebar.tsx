@@ -40,7 +40,7 @@ export function Sidebar({ persona = "ava" }: { persona?: "ava" | "adam" }) {
             alt={isAdam ? "Adam" : "Ava"}
             width={32}
             height={32}
-            className="object-contain"
+            className={isAdam ? "object-contain grayscale opacity-70" : "object-contain"}
           />
           <div>
             <span className="font-heading italic text-xl text-primary">
