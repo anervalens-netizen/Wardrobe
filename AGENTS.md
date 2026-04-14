@@ -130,8 +130,7 @@ Trei straturi:
 
 | Var | Note |
 |---|---|
-| `TURSO_DATABASE_URL` | `libsql://...` — URL baza de date SQLite |
-| `TURSO_AUTH_TOKEN` | token autentificare libsql |
+| `TURSO_DATABASE_URL` | `file:./prisma/garderoba.db` — SQLite local |
 | `NEXTAUTH_SECRET` | JWT signing |
 | `NEXTAUTH_URL` | URL-ul public al aplicației (ex: https://garderoba.domeniu.ro) |
 | `GOOGLE_AI_API_KEY` | Gemini API |
