@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
-import { Shirt, PlusCircle, MessageSquare, Clock, Star, TrendingUp, Sparkles } from "lucide-react";
+import { Shirt, PlusCircle, Clock, Star, TrendingUp, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -64,7 +64,6 @@ export default function DashboardPage() {
   const { data: session } = useSession();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [today, setToday] = useState("");
 
   const isAdam =
     process.env.NEXT_PUBLIC_PERSONA_ADAM_ENABLED === "true" &&
@@ -72,15 +71,11 @@ export default function DashboardPage() {
   const quickActions = getQuickActions(isAdam);
   const firstName = session?.user?.name?.split(" ")[0] || "tu";
 
-  useEffect(() => {
-    setToday(
-      new Date().toLocaleDateString("ro-RO", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-      })
-    );
-  }, []);
+  const today = new Date().toLocaleDateString("ro-RO", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
 
   useEffect(() => {
     fetch("/api/dashboard")

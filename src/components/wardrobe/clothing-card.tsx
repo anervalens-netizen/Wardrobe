@@ -18,6 +18,7 @@ interface ClothingCardProps {
     favorite: boolean;
   };
   onToggleFavorite?: (id: string, favorite: boolean) => void;
+  categories?: readonly { value: string; label: string }[];
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -29,9 +30,10 @@ const CATEGORY_COLORS: Record<string, string> = {
   accessories: "bg-amber-100 text-amber-700",
 };
 
-export function ClothingCard({ item, onToggleFavorite }: ClothingCardProps) {
+export function ClothingCard({ item, onToggleFavorite, categories }: ClothingCardProps) {
+  const allCategories = categories ?? CATEGORIES;
   const categoryLabel =
-    CATEGORIES.find((c) => c.value === item.category)?.label || item.category;
+    allCategories.find((c) => c.value === item.category)?.label || item.category;
   const categoryColor = CATEGORY_COLORS[item.category] || "bg-primary/10 text-primary";
 
   return (

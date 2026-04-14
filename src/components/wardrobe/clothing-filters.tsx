@@ -18,7 +18,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { CATEGORIES, SEASONS, FORMALITY } from "@/lib/constants";
+import { getCategories, SEASONS, FORMALITY } from "@/lib/constants";
 
 interface Filters {
   search: string;
@@ -31,13 +31,16 @@ interface ClothingFiltersProps {
   filters: Filters;
   onChange: (filters: Filters) => void;
   totalCount: number;
+  sex?: string | null;
 }
 
 export function ClothingFilters({
   filters,
   onChange,
   totalCount,
+  sex,
 }: ClothingFiltersProps) {
+  const categories = getCategories(sex);
   const activeCount = [
     filters.category,
     filters.season,
@@ -61,7 +64,7 @@ export function ClothingFilters({
           >
             Toate
           </button>
-          {CATEGORIES.map((c) => (
+          {categories.map((c) => (
             <button
               key={c.value}
               className={cn(
@@ -201,7 +204,7 @@ export function ClothingFilters({
         >
           Toate
         </button>
-        {CATEGORIES.map((c) => (
+        {categories.map((c) => (
           <button
             key={c.value}
             className={cn(
@@ -224,7 +227,7 @@ export function ClothingFilters({
         </span>
         {filters.category && (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary">
-            {CATEGORIES.find((c) => c.value === filters.category)?.label}
+            {categories.find((c) => c.value === filters.category)?.label}
             <X
               className="h-3 w-3 cursor-pointer"
               onClick={() => onChange({ ...filters, category: "" })}

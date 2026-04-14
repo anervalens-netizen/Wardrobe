@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Upload, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,7 +23,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  CATEGORIES,
+  getCategories,
   SUBCATEGORIES,
   PATTERNS,
   SEASONS,
@@ -34,6 +35,8 @@ import { toast } from "sonner";
 
 export default function AddItemPage() {
   const router = useRouter();
+  const { data: session } = useSession();
+  const userSex = session?.user?.sex;
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imagePath, setImagePath] = useState<string | null>(null);
@@ -201,7 +204,7 @@ export default function AddItemPage() {
                     <SelectValue placeholder="Alege categoria" />
                   </SelectTrigger>
                   <SelectContent>
-                    {CATEGORIES.map((c) => (
+                    {getCategories(userSex).map((c) => (
                       <SelectItem key={c.value} value={c.value}>
                         {c.label}
                       </SelectItem>

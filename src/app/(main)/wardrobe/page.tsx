@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { PlusCircle, Shirt } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ClothingCard } from "@/components/wardrobe/clothing-card";
 import { ClothingFilters } from "@/components/wardrobe/clothing-filters";
+import { getCategories } from "@/lib/constants";
 import { toast } from "sonner";
 
 interface ClothingItem {
@@ -23,6 +25,7 @@ interface ClothingItem {
 }
 
 export default function WardrobePage() {
+  const { data: session } = useSession();
   const [items, setItems] = useState<ClothingItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
@@ -31,6 +34,9 @@ export default function WardrobePage() {
     season: "",
     formality: "",
   });
+
+  const userSex = session?.user?.sex;
+  const categories = getCategories(userSex);
 
   const fetchItems = useCallback(async () => {
     const params = new URLSearchParams();
@@ -81,6 +87,7 @@ export default function WardrobePage() {
         filters={filters}
         onChange={setFilters}
         totalCount={items.length}
+        sex={userSex}
       />
 
       {loading ? (
@@ -96,6 +103,7 @@ export default function WardrobePage() {
               key={item.id}
               item={item}
               onToggleFavorite={toggleFavorite}
+              categories={categories}
             />
           ))}
         </div>

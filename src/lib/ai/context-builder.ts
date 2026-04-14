@@ -50,16 +50,22 @@ export async function buildUserContext(userId: string): Promise<string> {
     if (profile.hairColor) profileLines.push(`- Culoare păr: ${profile.hairColor}`);
     if (profile.eyeColor) profileLines.push(`- Culoare ochi: ${profile.eyeColor}`);
     if (profile.favoriteColors) {
-      const colors = JSON.parse(profile.favoriteColors);
-      if (colors.length) profileLines.push(`- Culori favorite: ${colors.join(", ")}`);
+      try {
+        const colors = JSON.parse(profile.favoriteColors);
+        if (Array.isArray(colors) && colors.length) profileLines.push(`- Culori favorite: ${colors.join(", ")}`);
+      } catch { /* ignore invalid JSON */ }
     }
     if (profile.avoidColors) {
-      const colors = JSON.parse(profile.avoidColors);
-      if (colors.length) profileLines.push(`- Culori de evitat: ${colors.join(", ")}`);
+      try {
+        const colors = JSON.parse(profile.avoidColors);
+        if (Array.isArray(colors) && colors.length) profileLines.push(`- Culori de evitat: ${colors.join(", ")}`);
+      } catch { /* ignore invalid JSON */ }
     }
     if (profile.stylePreferences) {
-      const styles = JSON.parse(profile.stylePreferences);
-      if (styles.length) profileLines.push(`- Stiluri preferate: ${styles.join(", ")}`);
+      try {
+        const styles = JSON.parse(profile.stylePreferences);
+        if (Array.isArray(styles) && styles.length) profileLines.push(`- Stiluri preferate: ${styles.join(", ")}`);
+      } catch { /* ignore invalid JSON */ }
     }
     if (profile.notes) profileLines.push(`- Note: ${profile.notes}`);
     sections.push(profileLines.join("\n"));

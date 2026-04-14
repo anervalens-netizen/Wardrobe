@@ -1,4 +1,4 @@
-const CACHE_NAME = "ava-v1";
+const CACHE_NAME = "garderoba-v1";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(["/"])));

@@ -33,6 +33,7 @@ export async function PUT(req: Request) {
   }
 
   const body = await req.json();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { name, sex, id: _id, userId: _userId, createdAt: _createdAt, updatedAt: _updatedAt, ...profileFields } = body;
 
   // Update User fields if provided

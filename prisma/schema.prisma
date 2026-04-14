@@ -114,6 +114,8 @@ model ClothingItem {
 
   user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   outfitItems OutfitItem[]
+
+  @@index([userId])
 }
 
 model Outfit {
@@ -131,6 +133,8 @@ model Outfit {
   outfitItems      OutfitItem[]
   outfitWears      OutfitWear[]
   sessionSummaries SessionSummary[]
+
+  @@index([userId])
 }
 
 model OutfitItem {
