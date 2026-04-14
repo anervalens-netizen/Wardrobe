@@ -33,7 +33,7 @@ export async function PUT(req: Request) {
   }
 
   const body = await req.json();
-  const { name, sex, ...profileFields } = body;
+  const { name, sex, id: _id, userId: _userId, createdAt: _createdAt, updatedAt: _updatedAt, ...profileFields } = body;
 
   // Update User fields if provided
   if (name !== undefined || sex !== undefined) {

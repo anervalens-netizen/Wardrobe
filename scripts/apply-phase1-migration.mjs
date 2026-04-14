@@ -12,6 +12,7 @@ const alters = [
   `ALTER TABLE "UserProfile" ADD COLUMN "themeVariant" TEXT`,
   `ALTER TABLE "UserProfile" ADD COLUMN "preferredOccasions" TEXT`,
   `ALTER TABLE "UserProfile" ADD COLUMN "lifestyleNotes" TEXT`,
+  `ALTER TABLE "UserProfile" ADD COLUMN "ageBand" TEXT`,
   `ALTER TABLE "Conversation" ADD COLUMN "migrated" BOOLEAN NOT NULL DEFAULT false`,
 ];
 
