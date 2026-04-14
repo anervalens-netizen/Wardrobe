@@ -130,15 +130,15 @@
 
   --radius: 0.5rem;
 
-  /* Sidebar */
-  --sidebar: oklch(0.20 0.05 250);
-  --sidebar-foreground: oklch(0.95 0.005 240);
-  --sidebar-primary: oklch(0.55 0.10 60);
+  /* Sidebar — light mode: alb/gri deschis, text navy */
+  --sidebar: oklch(0.97 0.005 240);
+  --sidebar-foreground: oklch(0.15 0.04 240);
+  --sidebar-primary: oklch(0.25 0.06 250);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.28 0.06 250);
-  --sidebar-accent-foreground: oklch(0.95 0.005 240);
-  --sidebar-border: oklch(0.30 0.05 250);
-  --sidebar-ring: oklch(0.55 0.10 60);
+  --sidebar-accent: oklch(0.92 0.015 240);
+  --sidebar-accent-foreground: oklch(0.25 0.06 250);
+  --sidebar-border: oklch(0.88 0.015 240);
+  --sidebar-ring: oklch(0.25 0.06 250);
 }
 
 [data-persona="adam"].dark {
@@ -150,6 +150,16 @@
   --muted-foreground: oklch(0.65 0.03 240);
   --border: oklch(0.25 0.04 250);
   --input: oklch(0.22 0.04 250);
+
+  /* Sidebar — dark mode: navy închis */
+  --sidebar: oklch(0.20 0.05 250);
+  --sidebar-foreground: oklch(0.95 0.005 240);
+  --sidebar-primary: oklch(0.55 0.10 60);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.28 0.06 250);
+  --sidebar-accent-foreground: oklch(0.95 0.005 240);
+  --sidebar-border: oklch(0.30 0.05 250);
+  --sidebar-ring: oklch(0.55 0.10 60);
 }
 
 /* Nu există dark mode pentru Ava */
