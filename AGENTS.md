@@ -72,6 +72,7 @@ src/
   components/
     layout/          # Sidebar, Header, MobileNav (prop: persona)
     onboarding/      # RerunOnboardingButton + chat onboarding
+    wardrobe/        # ClothingCard, ClothingFilters — gender-aware (prop: sex)
     ui/              # shadcn/ui components
   middleware.ts      # Auth guard + FORCE_ONBOARDING redirect
 ```
@@ -86,6 +87,9 @@ ClothingItem → OutfitItem → Outfit → OutfitWear
 - `User.sex`, `User.onboardingCompleted` — adăugate prin ALTER TABLE
 - `UserProfile.themeVariant`, `preferredOccasions`, `lifestyleNotes`, `ageBand` — adăugate prin ALTER TABLE
 - `Conversation.migrated` — flag migrare legacy
+
+**Indexuri adăugate:**
+- `ClothingItem @@index([userId])`, `Outfit @@index([userId])` — query performance pe filtrare per user
 
 ## Persona system
 
