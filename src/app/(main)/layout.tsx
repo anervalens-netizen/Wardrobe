@@ -25,7 +25,7 @@ export default async function MainLayout({
   }
 
   const classes = [
-    "min-h-screen",
+    "min-h-screen bg-background text-foreground",
     isAdam && themeVariant === "dark" ? "dark" : "",
   ]
     .filter(Boolean)

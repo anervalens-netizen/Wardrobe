@@ -22,39 +22,43 @@ interface DashboardStats {
   unwornItems: { id: string; name: string; category: string }[];
 }
 
-const QUICK_ACTIONS: {
+function getQuickActions(isAdam: boolean): {
   href: string;
   label: string;
   icon: React.ElementType;
   style: React.CSSProperties;
   textDark?: boolean;
-}[] = [
-  {
-    href: "/add-item",
-    label: "Adaugă piesă",
-    icon: PlusCircle,
-    style: { background: "linear-gradient(135deg, oklch(0.59 0.21 293), oklch(0.70 0.18 293))" },
-  },
-  {
-    href: "/assistant",
-    label: "Cere sfat Ava",
-    icon: Sparkles,
-    style: { background: "linear-gradient(135deg, oklch(0.70 0.14 185), oklch(0.78 0.12 185))" },
-  },
-  {
-    href: "/wardrobe",
-    label: "Garderobă",
-    icon: Shirt,
-    style: { background: "linear-gradient(135deg, oklch(0.75 0.12 330), oklch(0.82 0.09 330))" },
-  },
-  {
-    href: "/history",
-    label: "Istoric",
-    icon: Clock,
-    style: { background: "linear-gradient(135deg, oklch(0.88 0.06 20), oklch(0.93 0.04 20))" },
-    textDark: true,
-  },
-];
+}[] {
+  return [
+    {
+      href: "/add-item",
+      label: "Adaugă piesă",
+      icon: PlusCircle,
+      style: { background: "linear-gradient(135deg, oklch(0.59 0.21 293), oklch(0.70 0.18 293))" },
+    },
+    {
+      href: "/assistant",
+      label: isAdam ? "Cere sfat Adam" : "Cere sfat Ava",
+      icon: Sparkles,
+      style: isAdam
+        ? { background: "linear-gradient(135deg, oklch(0.25 0.06 250), oklch(0.32 0.07 250))" }
+        : { background: "linear-gradient(135deg, oklch(0.70 0.14 185), oklch(0.78 0.12 185))" },
+    },
+    {
+      href: "/wardrobe",
+      label: "Garderobă",
+      icon: Shirt,
+      style: { background: "linear-gradient(135deg, oklch(0.75 0.12 330), oklch(0.82 0.09 330))" },
+    },
+    {
+      href: "/history",
+      label: "Istoric",
+      icon: Clock,
+      style: { background: "linear-gradient(135deg, oklch(0.88 0.06 20), oklch(0.93 0.04 20))" },
+      textDark: true,
+    },
+  ];
+}
 
 export default function DashboardPage() {
   const { data: session } = useSession();
@@ -62,6 +66,10 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [today, setToday] = useState("");
 
+  const isAdam =
+    process.env.NEXT_PUBLIC_PERSONA_ADAM_ENABLED === "true" &&
+    session?.user?.sex === "male";
+  const quickActions = getQuickActions(isAdam);
   const firstName = session?.user?.name?.split(" ")[0] || "tu";
 
   useEffect(() => {
@@ -105,12 +113,14 @@ export default function DashboardPage() {
           Ce porți azi, {firstName}?
         </h2>
         <p className="text-sm text-muted-foreground mb-5">
-          Ava îți poate recomanda ținuta perfectă bazată pe garderoba ta
+          {isAdam
+            ? "Adam îți poate recomanda ținuta perfectă bazată pe garderoba ta"
+            : "Ava îți poate recomanda ținuta perfectă bazată pe garderoba ta"}
         </p>
         <Link href="/assistant">
           <Button className="rounded-full gradient-primary text-white border-0 shadow-ava px-6 hover:opacity-90 transition-opacity">
             <Sparkles className="h-4 w-4 mr-2" />
-            Cere sfat Ava
+            {isAdam ? "Cere sfat Adam" : "Cere sfat Ava"}
           </Button>
         </Link>
       </div>
@@ -150,7 +160,7 @@ export default function DashboardPage() {
           Acțiuni rapide
         </p>
         <div className="grid grid-cols-2 gap-3">
-          {QUICK_ACTIONS.map((action) => (
+          {quickActions.map((action) => (
             <Link key={action.href} href={action.href}>
               <div
                 className="rounded-2xl p-4 flex items-center gap-3 shadow-ava-sm hover:shadow-ava transition-all duration-200 hover:-translate-y-0.5"
@@ -217,7 +227,9 @@ export default function DashboardPage() {
           </div>
           <h3 className="font-heading italic text-xl mb-2">Garderoba ta e goală</h3>
           <p className="text-sm text-muted-foreground mb-5 max-w-xs">
-            Adaugă primele piese și Ava va începe să-ți creeze ținute personalizate
+            {isAdam
+              ? "Adaugă primele piese și Adam va începe să-ți creeze ținute personalizate"
+              : "Adaugă primele piese și Ava va începe să-ți creeze ținute personalizate"}
           </p>
           <Link href="/add-item">
             <Button className="rounded-full gradient-primary text-white border-0 shadow-ava">
