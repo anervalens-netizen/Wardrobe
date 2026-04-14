@@ -6,19 +6,30 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # Garderoba — Project Reference
 
-Aplicație PWA de gestionare garderobă cu asistent AI de modă. Deployment: https://garderoba.vercel.app
+Aplicație PWA de gestionare garderobă cu asistent AI de modă. Rulează local la `http://localhost:4821`, expusă extern prin tunel propriu.
 
 ## Stack exact
 
 | Layer | Tehnologie |
 |---|---|
 | Framework | Next.js 16.2.3 — App Router, Turbopack |
-| DB | Turso (cloud SQLite) via `@prisma/adapter-libsql` |
+| DB | SQLite local via `@prisma/adapter-libsql` + `@libsql/client` |
 | ORM | Prisma 7 — client în `src/generated/prisma/` |
 | Auth | NextAuth v5 beta (Auth.js) — JWT strategy |
 | AI | Google GenAI SDK `@google/genai` — model `gemini-flash-lite-latest` |
-| Storage | Vercel Blob — imagini haine |
+| Storage | Local filesystem (folder `public/uploads/`) |
 | UI | shadcn/ui + Tailwind CSS v4 |
+| Runtime | PM2 — process manager, autostart la boot Windows 11 |
+
+## Deployment local
+
+- **Port:** 4821 (fix, neuzual)
+- **Start cu PM2:** `pm2 start node_modules/next/dist/bin/next --name garderoba -- start -p 4821`
+- **Build:** `npm run build` (rulează `prisma generate && next build`)
+- **Restart după build:** `pm2 restart garderoba`
+- **Logs live:** `pm2 logs garderoba`
+- **Status:** `pm2 status`
+- **Autostart:** configurat prin `pm2-windows-startup`
 
 ## Arhitectura cheie
 
@@ -63,10 +74,6 @@ src/
     onboarding/      # RerunOnboardingButton + chat onboarding
     ui/              # shadcn/ui components
   middleware.ts      # Auth guard + FORCE_ONBOARDING redirect
-scripts/
-  push-schema.mjs           # Creare tabele inițiale (Phase 1 baseline)
-  apply-phase1-migration.mjs # ALTER TABLE + CREATE TABLE pentru toate coloanele/tabelele adăugate
-  migrate-conversations.ts   # Migrare Conversation (legacy) → ChatSession + ChatMessage
 ```
 
 ## Modele DB (Prisma schema)
@@ -86,6 +93,8 @@ ClothingItem → OutfitItem → Outfit → OutfitWear
 - **Adam** (masculin, gated): font Cormorant Garamond, palette navy/gold, suportă dark mode
 - Condiție activare Adam: `NEXT_PUBLIC_PERSONA_ADAM_ENABLED=true` AND `session.user.sex === "male"`
 - Layout server component aplică SSR: `data-persona="adam"` + `.dark` class din DB
+- **Light mode Adam**: sidebar alb/gri deschis, text navy
+- **Dark mode Adam**: sidebar navy închis, accent cognac/gold
 
 ## Memory system (Phase 4)
 
@@ -101,37 +110,45 @@ Trei straturi:
 **Prisma 7:**
 - Nu pune `url` în `schema.prisma` — adaptorul libsql e obligatoriu
 - `prisma generate` rulează la build (`build: "prisma generate && next build"`)
-- Nu commit `src/generated/prisma/` — e generat la build pe Vercel
+- Nu commit `src/generated/prisma/` — e generat la build
 
-**Schema push pe Turso:**
+**Schema changes:**
 - NU se folosește `prisma db push` (incompatibil cu libsql://)
-- Se folosește `node scripts/apply-phase1-migration.mjs` pentru ALTER TABLE/CREATE TABLE
-- Scriptul e idempotent (ignoră duplicate columns, IF NOT EXISTS)
+- Modificările de schema se aplică manual cu SQL direct pe `prisma/garderoba.db` via `@libsql/client`
 
 **NextAuth v5:**
 - Cookie prefix: `authjs` (nu `next-auth`)
 - Middleware: `getToken({ cookieName, salt: cookieName })` — salt obligatoriu
 - JWT callback populează: `token.id`, `token.sex`, `token.onboardingCompleted`
 
-**Env vars Turso:**
-- Întotdeauna `.trim()` pe `TURSO_DATABASE_URL` și `TURSO_AUTH_TOKEN` — Vercel adaugă newline trailing
-
 **Streaming AI:**
 - Format SSE: `data: ${JSON.stringify({ text })}\n\n`
 - `[DONE]` la final
 - `sessionId` emis ca SSE chunk separat când sesiunea e nouă
 
-## Env vars necesare (Vercel Production)
+## Env vars necesare (.env.local)
 
-| Var | Scope | Note |
-|---|---|---|
-| `TURSO_DATABASE_URL` | Production | libsql://... |
-| `TURSO_AUTH_TOKEN` | Production | token Turso |
-| `NEXTAUTH_SECRET` | Production | JWT signing |
-| `NEXTAUTH_URL` | Production | https://garderoba.vercel.app |
-| `GOOGLE_AI_API_KEY` | Production | Gemini API |
-| `BLOB_READ_WRITE_TOKEN` | Production + Preview | Vercel Blob |
-| `CRON_SECRET` | Production | Bearer token cron jobs |
-| `NEXT_PUBLIC_PERSONA_ADAM_ENABLED` | Production + Preview | "true" pentru Adam |
-| `FORCE_ONBOARDING` | All envs | "true" forțează onboarding pt useri noi |
-| `MEMORY_COMPACTION_ENABLED` | Production | opțional, lasă gol |
+| Var | Note |
+|---|---|
+| `TURSO_DATABASE_URL` | `libsql://...` — URL baza de date SQLite |
+| `TURSO_AUTH_TOKEN` | token autentificare libsql |
+| `NEXTAUTH_SECRET` | JWT signing |
+| `NEXTAUTH_URL` | URL-ul public al aplicației (ex: https://garderoba.domeniu.ro) |
+| `GOOGLE_AI_API_KEY` | Gemini API |
+| `BLOB_READ_WRITE_TOKEN` | token storage imagini |
+| `CRON_SECRET` | Bearer token cron jobs |
+| `NEXT_PUBLIC_PERSONA_ADAM_ENABLED` | "true" pentru Adam |
+| `FORCE_ONBOARDING` | "true" forțează onboarding pt useri noi |
+| `MEMORY_COMPACTION_ENABLED` | opțional, lasă gol |
+
+## Cron jobs (local — Windows Task Scheduler)
+
+Înlocuiesc cron-urile cloud. Configurate în Windows Task Scheduler să ruleze zilnic:
+
+```bash
+# auto-close-sessions — zilnic la 02:00
+curl -H "Authorization: Bearer CRON_SECRET" http://localhost:4821/api/cron/auto-close-sessions
+
+# compact-memory — zilnic la 03:00
+curl -H "Authorization: Bearer CRON_SECRET" http://localhost:4821/api/cron/compact-memory
+```

@@ -8,18 +8,22 @@ build/
 .DS_Store
 Thumbs.db
 
+# Generat automat
 /src/generated/prisma
-/public/uploads
-/prisma/dev.db
-/prisma/dev.db-journal
-
-.vercel
-.superpowers/
-.worktrees/
-dev.db
-dev.db-journal
-tmp/
 tsconfig.tsbuildinfo
 
-.vercel
-.env*.local
+# Baza de date locală
+/prisma/garderoba.db
+/prisma/garderoba.db-journal
+/prisma/dev.db
+/prisma/dev.db-journal
+dev.db
+dev.db-journal
+
+# Upload imagini locale
+/public/uploads
+
+# Unelte dev
+.superpowers/
+.worktrees/
+tmp/
