@@ -1,0 +1,9 @@
+{
+  "github.copilot.chat.experimental.agents": [
+    {
+      "name": "coder",
+      "description": "Elite full-stack developer (Code, Architecture, UI)",
+      "file": ".agents/coder.agent.md"
+    }
+  ]
+}

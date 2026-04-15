@@ -4,9 +4,9 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
-# Garderoba — Project Reference
+# ADAVA — Project Reference
 
-Aplicație PWA de gestionare garderobă cu asistent AI de modă. Rulează local la `http://localhost:4821`, expusă extern prin tunel propriu.
+Aplicație PWA de gestionare garderobă cu asistent AI de modă, numită **ADAVA** (Adam + Ava). Rulează local la `http://localhost:4821`, expusă extern prin tunel propriu.
 
 ## Stack exact
 
@@ -36,13 +36,16 @@ Aplicație PWA de gestionare garderobă cu asistent AI de modă. Rulează local 
 ```
 src/
   app/
+    (auth)/          # Layout autentificare (fundal unisex, alb curat)
+      login/         # Pagina de login — logo cu unoptimized priority
+      register/      # Pagina de înregistrare
     (main)/          # Layoutul principal (sidebar + header + mobile nav)
       layout.tsx     # SERVER component — citește persona + themeVariant din DB, aplică SSR
       dashboard/     # Homepage
-      assistant/     # Chat AI (client component, SSE streaming)
+      assistant/     # Chat AI (client component, SSE streaming, dropdown istoric sesiuni)
       wardrobe/      # Catalog haine
       history/       # Istoric ținute + conversații (tabs dual)
-      profile/       # Profil + preferințe utilizator
+      profile/       # Profil + preferințe utilizator + toggle temă instant
     onboarding/      # Flow onboarding conversațional (separat de main layout)
     api/
       assistant/
@@ -99,6 +102,80 @@ ClothingItem → OutfitItem → Outfit → OutfitWear
 - Layout server component aplică SSR: `data-persona="adam"` + `.dark` class din DB
 - **Light mode Adam**: sidebar alb/gri deschis, text navy
 - **Dark mode Adam**: sidebar navy închis, accent cognac/gold
+
+### Adam dashboard gradients
+
+Gradienții și shadow-urile pentru persona Adam sunt suprascriși în `globals.css` sub `[data-persona="adam"]`:
+- `.gradient-primary` → navy → cognac
+- `.gradient-teal` → navy gradient subtil
+- `.gradient-hero` → fundal neutru albăstrui
+- `.gradient-hero-banner` → navy / cognac / navy
+- `.shadow-ava-sm/lg` → umbre navy în loc de roz
+
+## Branding ADAVA
+
+Aplicația se numește **ADAVA** (fuziune Adam + Ava). Toate referințele la "AI Stylist Advisor" sau "Garderoba" au fost înlocuite cu ADAVA.
+
+- Logo Ava: `public/logo.png`
+- Logo Adam: `public/logo-adam.png`
+- Video background: `public/login-background.mp4` — folosit pe pagina de login și landing page
+
+## Login page & Landing page
+
+### Login (`src/app/(auth)/login/page.tsx`)
+Design ADAVA complet cu video background:
+- **Video background** (`/login-background.mp4`) ca layer de bază, full-screen
+- **Split overlay**: stânga violet/Ava (semi-transparent peste video), dreapta navy/Adam
+- **Parallax**: 3 straturi de adâncime (soft/medium/strong) cu cercuri flotante animate
+- **Focus reactions**: EMAIL activ → Adam side se intensifică, PASSWORD activ → Ava side
+- **Card flotant** (`animate-card-float`) cu backdrop-blur peste video
+- **ADAVA title** cu gradient animat violet→slate→amber
+- **Butoane logo** cu hover animations (Ava sway, Adam breathe)
+- **Buton submit** cu gradient 4-stop animat + scale-down la click
+- Middleware matcher include excluderea `.mp4` și `.webm` pentru a nu bloca video-ul
+
+### Landing page (`src/app/page.tsx`)
+Redesign complet dark/cinematic:
+- **Video background** același `/login-background.mp4`, opacity 40%
+- **Header** cu ADAVA logo + butoane Autentificare / Creează cont
+- **Hero section**: title ADAVA gradient mare, subtitle bilingv Adam/Ava, 2 CTA buttons
+- **Persona cards**: Ava (violet) și Adam (amber) cu hover scale
+- **Features grid** 6 carduri: Cataloghează, Asistent AI, Memorie, Istoric, Personalizat, Privat
+- **CTA bottom** + Footer cu branding ADAVA
+- Tema dark (`bg-[#0a0a0f]`) cu text white/opacity
+
+## AI tab — istoric sesiuni dropdown
+
+În header-ul chat-ului AI (`src/app/(main)/assistant/page.tsx`) există un buton **"Istoric"** (`DropdownMenu`):
+- La mount încarcă ultimele 8 sesiuni închise de la `GET /api/sessions`
+- Dropdown-ul afișează ocazia, data și numărul de mesaje per sesiune
+- La click pe o sesiune se deschide un `Dialog` cu rezumatul complet (ocazie, ținută aleasă, insights)
+
+**De reținut:** sesiunile închise nu pot fi reluate în tab-ul AI — ele rămân închise conform arhitecturii. Dropdown-ul oferă doar citirea rezumatului.
+
+## Mobile nav — logout button
+
+Butonul de logout a fost mutat din bara de navigație de jos în header-ul paginii:
+- **Eliminat:** butonul "Ieșire" din `MobileNav` (bara de jos pe mobil)
+- **Adăugat:** iconiță `LogOut` în `Header` vizibilă doar pe mobil (`md:hidden`), poziționată dreapta sus
+- Avatarul cu inițiala contului rămâne vizibil doar pe desktop (`hidden md:flex`)
+
+
+
+Profilul Adam permite comutarea instantă între tema light și dark. Handler-ul `handleThemeToggle(variant)` din `src/app/(main)/profile/page.tsx`:
+1. Actualizează state-ul local imediat
+2. Face `PUT /api/profile` cu `themeVariant`
+3. Apelează `router.refresh()` pentru a re-randa layout-ul server-side și a aplica clasa `.dark`
+
+Nu mai este necesară apăsarea butonului "Salvează" — tema se aplică instant.
+
+## Sidebar
+
+`src/components/layout/sidebar.tsx` — sidebar-ul afișează logo-ul și numele persoanei active:
+- Adam: logo `/logo-adam.png`, titlu "Adam", subtitle "AI Stylist"
+- Ava: logo `/logo.png`, titlu "Ava", subtitle "AI Stylist"
+- Nav items: Acasă, Garderobă, Adaugă piesă, [Adam AI / Ava AI], Istoric, Profil
+- Sidebar folosește variabile CSS sidebar-specifice (`--sidebar-primary`, `--sidebar-foreground` etc.) — NU variabile generale — pentru a asigura contrast corect în dark mode Adam
 
 ## Memory system (Phase 4)
 

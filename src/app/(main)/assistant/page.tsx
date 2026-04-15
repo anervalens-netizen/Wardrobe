@@ -13,16 +13,45 @@ import {
   Briefcase,
   Gem,
   X,
+  History,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
+}
+
+interface SessionSummary {
+  occasion: string | null;
+  outfitChosenText: string | null;
+  keyInsights: string | null;
+}
+
+interface ClosedSession {
+  id: string;
+  startedAt: string;
+  closedAt: string | null;
+  summary: SessionSummary | null;
+  messages: { role: string; content: string; createdAt: string }[];
+  _count: { messages: number };
 }
 
 const quickPromptsAva = [
@@ -79,6 +108,9 @@ export default function AssistantPage() {
   const [sessionLoading, setSessionLoading] = useState(true);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [closingSession, setClosingSession] = useState(false);
+  const [sessions, setSessions] = useState<ClosedSession[]>([]);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
+  const [selectedSession, setSelectedSession] = useState<ClosedSession | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -92,8 +124,18 @@ export default function AssistantPage() {
           setSessionId(data.sessionId);
         }
       })
-      .catch(() => {})
+      .catch((e) => { console.error("[session fetch]", e); })
       .finally(() => setSessionLoading(false));
+  }, []);
+
+  // Load closed sessions for history dropdown
+  useEffect(() => {
+    setSessionsLoading(true);
+    fetch("/api/sessions")
+      .then((r) => r.json())
+      .then((data) => setSessions(data.slice(0, 8)))
+      .catch((e) => { console.error("[sessions fetch]", e); })
+      .finally(() => setSessionsLoading(false));
   }, []);
 
   // Scroll to bottom when messages change
@@ -178,6 +220,25 @@ export default function AssistantPage() {
     }
   }
 
+  async function resumeSession(session: ClosedSession) {
+    setSelectedSession(null);
+    try {
+      const res = await fetch(`/api/sessions/${session.id}`);
+      if (!res.ok) throw new Error("failed");
+      const full = await res.json();
+      if (full.messages?.length > 0) {
+        setMessages(full.messages.map((m: { role: string; content: string }) => ({
+          role: m.role as "user" | "assistant",
+          content: m.content,
+        })));
+        setSessionId(session.id);
+        toast.success("Conversație reluată");
+      }
+    } catch {
+      toast.error("Nu am putut încărca conversația");
+    }
+  }
+
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -217,6 +278,45 @@ export default function AssistantPage() {
             <span className="text-xs">Închide</span>
           </Button>
         )}
+        <DropdownMenu>
+          <DropdownMenuTrigger className="inline-flex items-center gap-1.5 h-8 rounded-md px-3 text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+            {sessionsLoading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <History className="h-3.5 w-3.5" />
+            )}
+            <span>Istoric</span>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-72">
+            {sessions.length === 0 && !sessionsLoading && (
+              <p className="text-xs text-muted-foreground px-3 py-2">Nicio conversație anterioară</p>
+            )}
+            {sessions.map((s) => (
+              <DropdownMenuItem
+                key={s.id}
+                className="flex flex-col items-start gap-1 cursor-pointer"
+                onClick={() => resumeSession(s)}
+              >
+                <div className="flex items-center justify-between w-full gap-2">
+                  <span className="text-sm font-medium truncate">
+                    {s.summary?.occasion
+                      ? s.summary.occasion.charAt(0).toUpperCase() + s.summary.occasion.slice(1)
+                      : "Conversație stilistică"}
+                  </span>
+                  <Badge variant="outline" className="text-[10px] shrink-0">
+                    {s._count?.messages ?? 0} mes
+                  </Badge>
+                </div>
+                <span className="text-[10px] text-muted-foreground">
+                  {new Date(s.startedAt).toLocaleDateString("ro-RO", {
+                    day: "numeric",
+                    month: "short",
+                  })}
+                </span>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Messages — scrollable */}
@@ -305,6 +405,50 @@ export default function AssistantPage() {
           )}
         </Button>
       </div>
+
+      {/* Session detail dialog */}
+      <Dialog open={!!selectedSession} onOpenChange={(open) => !open && setSelectedSession(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-heading italic">
+              {selectedSession?.summary?.occasion
+                ? selectedSession.summary.occasion.charAt(0).toUpperCase() +
+                  selectedSession.summary.occasion.slice(1)
+                : "Rezumat conversație"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 pt-2">
+            {selectedSession?.summary?.outfitChosenText && (
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                  Ținută aleasă
+                </p>
+                <p className="text-sm">{selectedSession.summary.outfitChosenText}</p>
+              </div>
+            )}
+            {selectedSession?.summary?.keyInsights && (
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                  Observații
+                </p>
+                <p className="text-sm text-muted-foreground">{selectedSession.summary.keyInsights}</p>
+              </div>
+            )}
+            <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
+              <span>{selectedSession?._count?.messages ?? 0} mesaje</span>
+              <span>
+                {selectedSession
+                  ? new Date(selectedSession.startedAt).toLocaleDateString("ro-RO", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })
+                  : ""}
+              </span>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

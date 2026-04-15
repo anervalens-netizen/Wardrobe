@@ -164,6 +164,61 @@
 
 /* Nu există dark mode pentru Ava */
 
+/* ─── Adam dashboard gradients (overrides for masculine palette) ─── */
+[data-persona="adam"] .gradient-primary {
+  background: linear-gradient(135deg, oklch(0.25 0.06 250), oklch(0.55 0.10 60));
+}
+[data-persona="adam"] .gradient-teal {
+  background: linear-gradient(135deg, oklch(0.25 0.06 250), oklch(0.45 0.08 250));
+}
+[data-persona="adam"] .gradient-hero {
+  background: linear-gradient(180deg, oklch(0.93 0.01 250) 0%, oklch(0.88 0.02 250) 100%);
+}
+[data-persona="adam"] .gradient-hero-banner {
+  background: linear-gradient(135deg, oklch(0.25 0.06 250) 0%, oklch(0.55 0.10 60) 50%, oklch(0.30 0.07 250) 100%);
+}
+[data-persona="adam"] .shadow-ava-sm {
+  box-shadow: 0 2px 8px oklch(0.25 0.06 250 / 0.15);
+}
+[data-persona="adam"] .shadow-ava {
+  box-shadow: 0 4px 20px oklch(0.25 0.06 250 / 0.20);
+}
+[data-persona="adam"] .shadow-ava-lg {
+  box-shadow: 0 8px 32px oklch(0.25 0.06 250 / 0.25);
+}
+
+/* Adam dark mode gradient overrides */
+[data-persona="adam"].dark .gradient-primary {
+  background: linear-gradient(135deg, oklch(0.55 0.10 60), oklch(0.25 0.06 250));
+}
+[data-persona="adam"].dark .gradient-teal {
+  background: linear-gradient(135deg, oklch(0.20 0.05 250), oklch(0.55 0.10 60));
+}
+[data-persona="adam"].dark .gradient-hero {
+  background: linear-gradient(180deg, oklch(0.16 0.04 250) 0%, oklch(0.12 0.03 250) 100%);
+}
+[data-persona="adam"].dark .gradient-hero-banner {
+  background: linear-gradient(135deg, oklch(0.55 0.10 60) 0%, oklch(0.25 0.06 250) 50%, oklch(0.55 0.10 60) 100%);
+}
+
+/* Adam quick action buttons — override inline gradients via sibling + !important */
+[data-persona="adam"] .qa-adauga-piesa,
+[data-persona="adam"] .qa-adauga-piesa > div {
+  background: linear-gradient(135deg, oklch(0.25 0.06 250), oklch(0.55 0.10 60)) !important;
+}
+[data-persona="adam"] .qa-garderoba,
+[data-persona="adam"] .qa-garderoba > div {
+  background: linear-gradient(135deg, oklch(0.20 0.05 250), oklch(0.55 0.10 60)) !important;
+}
+[data-persona="adam"] .qa-istoric,
+[data-persona="adam"] .qa-istoric > div {
+  background: linear-gradient(135deg, oklch(0.18 0.04 250), oklch(0.28 0.06 250)) !important;
+}
+[data-persona="adam"] .qa-istoric svg,
+[data-persona="adam"] .qa-istoric span {
+  color: oklch(0.93 0.01 250) !important;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -210,3 +265,75 @@
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 }
+
+/* ─── Login page animations (ADAVA) ─── */
+@keyframes float-a {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(18px, -22px); }
+  50% { transform: translate(-12px, -28px); }
+  75% { transform: translate(-22px, 10px); }
+}
+@keyframes float-b {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(-16px, 14px); }
+  66% { transform: translate(14px, -12px); }
+}
+@keyframes float-c {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(12px, -18px); }
+}
+@keyframes card-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+@keyframes ava-sway {
+  0%, 100% { transform: rotate(0) scale(1.1); }
+  25% { transform: rotate(-6deg) scale(1.1); }
+  75% { transform: rotate(6deg) scale(1.1); }
+}
+@keyframes adam-breathe {
+  0%, 100% { transform: scale(1.1); filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.4)); }
+  50% { transform: scale(1.18); filter: drop-shadow(0 0 14px rgba(251, 191, 36, 0.7)); }
+}
+
+.animate-float-a { animation: float-a 9s ease-in-out infinite; }
+.animate-float-b { animation: float-b 11s ease-in-out infinite; }
+.animate-float-c { animation: float-c 7s ease-in-out infinite; }
+.animate-card-float { animation: card-float 6s ease-in-out infinite; }
+.animate-gradient-shift {
+  background-size: 200% 200%;
+  animation: gradient-shift 5s ease-in-out infinite;
+}
+
+.parallax-soft {
+  transform: translate(calc(var(--mx, 0) * -8px), calc(var(--my, 0) * -8px));
+  transition: transform 0.5s cubic-bezier(0.33, 1, 0.68, 1);
+  will-change: transform;
+}
+.parallax-medium {
+  transform: translate(calc(var(--mx, 0) * -18px), calc(var(--my, 0) * -18px));
+  transition: transform 0.5s cubic-bezier(0.33, 1, 0.68, 1);
+  will-change: transform;
+}
+.parallax-strong {
+  transform: translate(calc(var(--mx, 0) * -32px), calc(var(--my, 0) * -32px));
+  transition: transform 0.5s cubic-bezier(0.33, 1, 0.68, 1);
+  will-change: transform;
+}
+
+.ava-logo-hover:hover { animation: ava-sway 1.4s ease-in-out; }
+.adam-logo-hover:hover { animation: breathe 1.2s ease-in-out; }
+
+/* Focus active — latura reacționează când câmpul corespunzător e activ */
+.persona-active-ava { filter: brightness(1.08) saturate(1.15); }
+.persona-active-adam { filter: brightness(1.15) saturate(1.2); }
+.persona-logo-active { animation: ava-sway 1.4s ease-in-out; }
+.adam-logo-active { animation: adam-breathe 2.2s ease-in-out infinite; }

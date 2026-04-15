@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Loader2, Save, User, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -65,6 +66,7 @@ interface Profile {
 
 export default function ProfilePage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const isAdam =
     process.env.NEXT_PUBLIC_PERSONA_ADAM_ENABLED === "true" &&
     session?.user?.sex === "male";
@@ -130,6 +132,16 @@ export default function ProfilePage() {
       toast.error("Eroare la salvare");
     }
     setSaving(false);
+  }
+
+  async function handleThemeToggle(variant: "light" | "dark") {
+    setProfile((prev) => prev ? { ...prev, themeVariant: variant } : null);
+    await fetch("/api/profile", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ themeVariant: variant }),
+    });
+    router.refresh();
   }
 
   if (loading) {
@@ -454,7 +466,7 @@ export default function ProfilePage() {
               <Button
                 variant={profile?.themeVariant !== "dark" ? "default" : "outline"}
                 className="flex-1 gap-2"
-                onClick={() => setProfile({ ...profile!, themeVariant: "light" })}
+                onClick={() => handleThemeToggle("light")}
               >
                 <Sun className="h-4 w-4" />
                 Luminos
@@ -462,7 +474,7 @@ export default function ProfilePage() {
               <Button
                 variant={profile?.themeVariant === "dark" ? "default" : "outline"}
                 className="flex-1 gap-2"
-                onClick={() => setProfile({ ...profile!, themeVariant: "dark" })}
+                onClick={() => handleThemeToggle("dark")}
               >
                 <Moon className="h-4 w-4" />
                 Întunecat

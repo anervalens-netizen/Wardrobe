@@ -155,23 +155,31 @@ export default function DashboardPage() {
           Acțiuni rapide
         </p>
         <div className="grid grid-cols-2 gap-3">
-          {quickActions.map((action) => (
-            <Link key={action.href} href={action.href}>
-              <div
-                className="rounded-2xl p-4 flex items-center gap-3 shadow-ava-sm hover:shadow-ava transition-all duration-200 hover:-translate-y-0.5"
-                style={action.style}
-              >
-                <action.icon
-                  className={`h-5 w-5 shrink-0 ${action.textDark ? "text-gray-700" : "text-white"}`}
-                />
-                <span
-                  className={`text-sm font-bold ${action.textDark ? "text-gray-700" : "text-white"}`}
+          {quickActions.map((action, index) => {
+            const qaClass = [
+              "qa-adauga-piesa",
+              "qa-sfat",
+              "qa-garderoba",
+              "qa-istoric",
+            ][index];
+            return (
+              <Link key={action.href} href={action.href} className={qaClass}>
+                <div
+                  className="rounded-2xl p-4 flex items-center gap-3 shadow-ava-sm hover:shadow-ava transition-all duration-200 hover:-translate-y-0.5"
+                  style={action.style}
                 >
-                  {action.label}
-                </span>
-              </div>
-            </Link>
-          ))}
+                  <action.icon
+                    className={`h-5 w-5 shrink-0 ${action.textDark ? "text-gray-700" : "text-white"}`}
+                  />
+                  <span
+                    className={`text-sm font-bold ${action.textDark ? "text-gray-700" : "text-white"}`}
+                  >
+                    {action.label}
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </div>
 

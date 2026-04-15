@@ -64,16 +64,6 @@ export function MobileNav({ persona = "ava" }: { persona?: "ava" | "adam" }) {
             </Link>
           );
         })}
-
-        {/* Logout button */}
-        <button
-          type="button"
-          onClick={() => signOut({ callbackUrl: "/login" })}
-          className="flex flex-col items-center gap-1 py-3 px-3 text-[10px] font-semibold text-muted-foreground transition-colors hover:text-destructive"
-        >
-          <LogOut className="h-5 w-5" />
-          Ieșire
-        </button>
       </div>
     </nav>
   );

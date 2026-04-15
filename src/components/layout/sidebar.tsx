@@ -36,14 +36,14 @@ export function Sidebar({ persona = "ava" }: { persona?: "ava" | "adam" }) {
         {/* Logo */}
         <div className="flex items-center gap-3 px-6 py-5">
           <Image
-            src="/logo.png"
+            src={isAdam ? "/logo-adam.png" : "/logo.png"}
             alt={isAdam ? "Adam" : "Ava"}
             width={32}
             height={32}
-            className={isAdam ? "object-contain grayscale opacity-70" : "object-contain"}
+            className="object-contain"
           />
           <div>
-            <span className="font-heading italic text-xl text-primary">
+            <span className="font-heading italic text-xl text-sidebar-primary">
               {isAdam ? "Adam" : "Ava"}
             </span>
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground leading-none mt-0.5">
@@ -72,14 +72,14 @@ export function Sidebar({ persona = "ava" }: { persona?: "ava" | "adam" }) {
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200",
                   isActive
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                    ? "bg-sidebar-primary/10 text-sidebar-primary"
+                    : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 )}
               >
                 <item.icon
                   className={cn(
                     "h-[18px] w-[18px] shrink-0",
-                    isActive ? "text-primary" : "text-muted-foreground"
+                    isActive ? "text-sidebar-primary" : "text-sidebar-foreground/60"
                   )}
                 />
                 {label}
@@ -97,7 +97,7 @@ export function Sidebar({ persona = "ava" }: { persona?: "ava" | "adam" }) {
         <div className="px-3 py-4 border-t border-border">
           <Button
             variant="ghost"
-            className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/5 rounded-xl"
+            className="w-full justify-start gap-3 text-sidebar-foreground/60 hover:text-destructive hover:bg-destructive/5 rounded-xl"
             onClick={() => signOut({ callbackUrl: "/login" })}
           >
             <LogOut className="h-[18px] w-[18px]" />
