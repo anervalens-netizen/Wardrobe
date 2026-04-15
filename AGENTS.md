@@ -123,26 +123,18 @@ Aplicația se numește **ADAVA** (fuziune Adam + Ava). Toate referințele la "AI
 ## Login page & Landing page
 
 ### Login (`src/app/(auth)/login/page.tsx`)
-Design ADAVA complet cu video background:
-- **Video background** (`/login-background.mp4`) ca layer de bază, full-screen
-- **Split overlay**: stânga violet/Ava (semi-transparent peste video), dreapta navy/Adam
-- **Parallax**: 3 straturi de adâncime (soft/medium/strong) cu cercuri flotante animate
+Design ADAVA complet:
+- **Split background solid**: stânga violet/lavandă (Ava), dreapta navy/cognac (Adam) — fără video, fără bule animate
 - **Focus reactions**: EMAIL activ → Adam side se intensifică, PASSWORD activ → Ava side
-- **Card flotant** (`animate-card-float`) cu backdrop-blur peste video
+- **Card flotant** (`animate-card-float`) cu backdrop-blur
 - **ADAVA title** cu gradient animat violet→slate→amber
 - **Butoane logo** cu hover animations (Ava sway, Adam breathe)
 - **Buton submit** cu gradient 4-stop animat + scale-down la click
-- Middleware matcher include excluderea `.mp4` și `.webm` pentru a nu bloca video-ul
+- `handleSubmit` are `try-catch` în jurul `signIn()` — necesar pentru NextAuth v5 beta care aruncă excepție în loc să returneze eroare
+- Middleware matcher exclude `.mp4` și `.webm` (rămân din setup anterior)
 
 ### Landing page (`src/app/page.tsx`)
-Redesign complet dark/cinematic:
-- **Video background** același `/login-background.mp4`, opacity 40%
-- **Header** cu ADAVA logo + butoane Autentificare / Creează cont
-- **Hero section**: title ADAVA gradient mare, subtitle bilingv Adam/Ava, 2 CTA buttons
-- **Persona cards**: Ava (violet) și Adam (amber) cu hover scale
-- **Features grid** 6 carduri: Cataloghează, Asistent AI, Memorie, Istoric, Personalizat, Privat
-- **CTA bottom** + Footer cu branding ADAVA
-- Tema dark (`bg-[#0a0a0f]`) cu text white/opacity
+Eliminată — `page.tsx` face `redirect("/login")` direct. Landing page era inutilă.
 
 ## AI tab — istoric sesiuni dropdown
 
@@ -201,6 +193,8 @@ Trei straturi:
 - Cookie prefix: `authjs` (nu `next-auth`)
 - Middleware: `getToken({ cookieName, salt: cookieName })` — salt obligatoriu
 - JWT callback populează: `token.id`, `token.sex`, `token.onboardingCompleted`
+- **NU folosi `PrismaAdapter`** în `auth.ts` — cu credentials + JWT strategy, adapter-ul face fetch-uri HTTP interne care returnează body gol → `SyntaxError: Unexpected end of JSON input` → login blocat pe loading. Prisma se accesează direct în `authorize` și callbacks JWT, fără adapter.
+- **`signIn()` din `next-auth/react` poate arunca excepție** (nu doar returna `result.error`) — întotdeauna wrap în `try-catch` în `handleSubmit`
 
 **Streaming AI:**
 - Format SSE: `data: ${JSON.stringify({ text })}\n\n`

@@ -44,17 +44,41 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-    if (result?.error) {
-      setError("Email sau parolă incorecte");
+
+    // Timeout fallback - if signIn hangs for more than 15s, show error
+    const timeoutId = setTimeout(() => {
+      setError("Conexiunea a expirat. Te rugăm să încerci din nou.");
       setLoading(false);
-    } else {
-      router.push("/dashboard");
-      router.refresh();
+    }, 15000);
+
+    try {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+        // Add callback URL explicitly for NextAuth v5
+        callbackUrl: "/dashboard",
+      });
+
+      clearTimeout(timeoutId);
+
+      if (result?.error) {
+        setError("Email sau parolă incorecte");
+        setLoading(false);
+      } else if (result?.url) {
+        // Success - redirect to the URL returned by signIn
+        router.push(result.url);
+        router.refresh();
+      } else {
+        // Fallback redirect
+        router.push("/dashboard");
+        router.refresh();
+      }
+    } catch (err) {
+      clearTimeout(timeoutId);
+      console.error("Login error:", err);
+      setError("A apărut o eroare. Te rugăm să încerci din nou.");
+      setLoading(false);
     }
   }
 
@@ -63,67 +87,32 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      {/* Video background */}
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover z-0"
-      >
-        <source src="/login-background.mp4" type="video/mp4" />
-      </video>
-
-      {/* Split color overlay — tinted persona panels over the video */}
-      <div className="absolute inset-0 flex z-10">
-        {/* Ava side — violet/lavandă overlay */}
+      {/* Split background */}
+      <div className="absolute inset-0 flex">
+        {/* Ava side — violet/lavandă */}
         <div
           className={cn(
-            "w-1/2 h-full relative overflow-hidden transition-all duration-700",
-            avaActive
-              ? "bg-violet-900/55"
-              : "bg-gradient-to-br from-violet-900/50 via-violet-800/45 to-purple-900/50"
+            "w-1/2 h-full bg-gradient-to-br from-[#ede9fe] via-[#ddd6fe] to-[#c4b5fd] relative overflow-hidden transition-all duration-700",
+            avaActive && "persona-active-ava"
           )}
         >
-          <div className="parallax-strong absolute inset-0">
-            <div className="animate-float-a absolute -top-20 -left-20 w-80 h-80 rounded-full bg-violet-400/20" />
-          </div>
-          <div className="parallax-medium absolute inset-0">
-            <div className="animate-float-b absolute bottom-10 right-0 w-48 h-48 rounded-full bg-violet-300/15" />
-          </div>
-          <div className="parallax-soft absolute inset-0">
-            <div className="animate-float-c absolute top-1/3 left-8 w-24 h-24 rounded-full bg-violet-200/20" />
-            <div className="animate-float-a absolute top-20 right-16 w-16 h-16 rounded-full bg-fuchsia-300/15" style={{ animationDelay: "1.5s" }} />
-          </div>
           <div className="absolute bottom-12 left-0 right-0 flex flex-col items-center gap-2 px-6 pointer-events-none">
-            <p className={cn("text-violet-200/80 text-xs uppercase tracking-[4px] font-bold transition-all duration-500", avaActive && "text-violet-100 tracking-[5px]")}>
+            <p className={cn("text-violet-600/70 text-xs uppercase tracking-[4px] font-bold transition-all duration-500", avaActive && "text-violet-700 tracking-[5px]")}>
               Stilistă
             </p>
-            <p className="text-violet-100/60 text-sm font-medium text-center">Consultantă de modă feminină</p>
+            <p className="text-violet-800/60 text-sm font-medium text-center">Consultantă de modă feminină</p>
           </div>
         </div>
 
-        {/* Adam side — navy/cognac overlay */}
+        {/* Adam side — navy/cognac */}
         <div
           className={cn(
-            "w-1/2 h-full relative overflow-hidden transition-all duration-700",
-            adamActive
-              ? "bg-slate-900/65"
-              : "bg-gradient-to-bl from-slate-900/60 via-slate-800/55 to-slate-900/60"
+            "w-1/2 h-full bg-gradient-to-bl from-[#0f172a] via-[#1e293b] to-[#1a2744] relative overflow-hidden transition-all duration-700",
+            adamActive && "persona-active-adam"
           )}
         >
-          <div className="parallax-strong absolute inset-0">
-            <div className="animate-float-a absolute -top-10 -right-10 w-64 h-64 rounded-full bg-amber-600/10" />
-          </div>
-          <div className="parallax-medium absolute inset-0">
-            <div className="animate-float-b absolute bottom-20 left-4 w-40 h-40 rounded-full bg-amber-500/8" />
-          </div>
-          <div className="parallax-soft absolute inset-0">
-            <div className="animate-float-c absolute top-1/4 right-12 w-20 h-20 rounded-full bg-amber-400/10" />
-            <div className="animate-float-b absolute top-16 left-20 w-14 h-14 rounded-full bg-slate-300/8" style={{ animationDelay: "2s" }} />
-          </div>
           <div className="absolute bottom-12 left-0 right-0 flex flex-col items-center gap-2 px-6 pointer-events-none">
-            <p className={cn("text-amber-300/80 text-xs uppercase tracking-[4px] font-bold transition-all duration-500", adamActive && "text-amber-200 tracking-[5px]")}>
+            <p className={cn("text-amber-400/70 text-xs uppercase tracking-[4px] font-bold transition-all duration-500", adamActive && "text-amber-300 tracking-[5px]")}>
               Stilist
             </p>
             <p className="text-amber-100/50 text-sm font-medium text-center">Consultant de modă masculină</p>
@@ -132,11 +121,11 @@ export default function LoginPage() {
       </div>
 
       {/* Center divider */}
-      <div className="absolute inset-y-0 left-1/2 -translate-x-px w-px bg-gradient-to-b from-transparent via-white/30 to-transparent z-20" />
+      <div className="absolute inset-y-0 left-1/2 -translate-x-px w-px bg-gradient-to-b from-transparent via-white/40 to-transparent" />
 
       {/* Login card */}
-      <div className="relative z-30 w-full max-w-sm mx-4 animate-card-float">
-        <div className="bg-white/92 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/70 px-8 py-9">
+      <div className="relative z-10 w-full max-w-sm mx-4 animate-card-float">
+        <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/80 px-8 py-9">
 
           {/* ADAVA branding */}
           <div className="flex flex-col items-center mb-7">
