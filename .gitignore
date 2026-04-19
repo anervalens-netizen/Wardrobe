@@ -13,15 +13,15 @@ Thumbs.db
 tsconfig.tsbuildinfo
 
 # Baza de date locală
-/prisma/garderoba.db
 /prisma/garderoba.db-journal
 /prisma/dev.db
 /prisma/dev.db-journal
 dev.db
 dev.db-journal
 
-# Upload imagini locale
-/public/uploads
+# Upload imagini locale — folderul e inclus, dar conținutul ignorat
+/public/uploads/*
+!/public/uploads/.gitkeep
 
 # Unelte dev
 .superpowers/
