@@ -8,9 +8,7 @@ import {
   PlusCircle,
   MessageSquare,
   User,
-  LogOut,
 } from "lucide-react";
-import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 
 export function MobileNav({ persona = "ava" }: { persona?: "ava" | "adam" }) {

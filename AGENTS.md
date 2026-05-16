@@ -143,12 +143,13 @@ Eliminată — `page.tsx` face `redirect("/login")` direct. Landing page era inu
 - Dropdown-ul afișează ocazia, data și numărul de mesaje per sesiune
 - La click pe o sesiune se deschide un `Dialog` cu rezumatul complet (ocazie, ținută aleasă, insights)
 
-**De reținut:** sesiunile închise nu pot fi reluate în tab-ul AI — ele rămân închise conform arhitecturii. Dropdown-ul oferă doar citirea rezumatului.
+**De reținut:** sesiunile închise pot fi reluate — dropdown-ul "Istoric" permite selectarea unei sesiuni anterioare, iar apăsarea pe ea restaurează conversația completă (mesaje + sessionId) în tab-ul AI.
 
 ## Mobile nav — logout button
 
 Butonul de logout a fost mutat din bara de navigație de jos în header-ul paginii:
 - **Eliminat:** butonul "Ieșire" din `MobileNav` (bara de jos pe mobil)
+- **Eliminate:** importurile `LogOut` și `signOut` din `mobile-nav.tsx` — nu mai sunt necesare
 - **Adăugat:** iconiță `LogOut` în `Header` vizibilă doar pe mobil (`md:hidden`), poziționată dreapta sus
 - Avatarul cu inițiala contului rămâne vizibil doar pe desktop (`hidden md:flex`)
 

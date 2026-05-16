@@ -26,21 +26,12 @@ export async function POST(req: Request) {
     const hashedPassword = await bcrypt.hash(password, 12);
     const now = new Date();
 
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: {
         id: cuid(),
         name,
         email,
         password: hashedPassword,
-        createdAt: now,
-        updatedAt: now,
-      },
-    });
-
-    await prisma.userProfile.create({
-      data: {
-        id: cuid(),
-        userId: user.id,
         createdAt: now,
         updatedAt: now,
       },

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { closeSessionWithSummary } from "@/lib/session-close";
 import { NextResponse } from "next/server";
 
 const IDLE_THRESHOLD_MS = 4 * 60 * 60 * 1000; // 4 hours
@@ -12,7 +13,6 @@ export async function GET(req: Request) {
 
   const cutoff = new Date(Date.now() - IDLE_THRESHOLD_MS);
 
-  // Find open sessions with enough messages where the last message is old
   const staleSessions = await prisma.chatSession.findMany({
     where: {
       closedAt: null,
@@ -34,13 +34,18 @@ export async function GET(req: Request) {
   );
 
   let closed = 0;
+  let summariesCreated = 0;
   for (const s of toClose) {
     await prisma.chatSession.update({
       where: { id: s.id },
       data: { closedAt: new Date(), closureMethod: "cron" },
     });
+
+    const { summaryCreated } = await closeSessionWithSummary(s.id, s.userId);
+    if (summaryCreated) summariesCreated++;
+
     closed++;
   }
 
-  return NextResponse.json({ ok: true, closed });
+  return NextResponse.json({ ok: true, closed, summariesCreated });
 }

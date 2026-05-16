@@ -10,6 +10,10 @@ import { Button } from "@/components/ui/button";
 export function Header() {
   const { data: session } = useSession();
 
+  const isAdam =
+    process.env.NEXT_PUBLIC_PERSONA_ADAM_ENABLED === "true" &&
+    session?.user?.sex === "male";
+
   const initials =
     session?.user?.name
       ?.split(" ")
@@ -22,8 +26,16 @@ export function Header() {
       <div className="flex h-14 items-center justify-between px-4">
         {/* Logo mobil */}
         <div className="md:hidden flex items-center gap-2">
-          <Image src="/logo.png" alt="Ava" width={24} height={24} className="object-contain" />
-          <span className="font-heading italic text-lg text-primary">Ava</span>
+          <Image
+            src={isAdam ? "/logo-adam.png" : "/logo.png"}
+            alt={isAdam ? "Adam" : "Ava"}
+            width={24}
+            height={24}
+            className="object-contain"
+          />
+          <span className="font-heading italic text-lg text-primary">
+            {isAdam ? "Adam" : "Ava"}
+          </span>
         </div>
         <div className="hidden md:block" />
 

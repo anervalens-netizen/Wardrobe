@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import {
   Send,
   Loader2,
@@ -98,6 +99,7 @@ const quickPromptsAdam = [
 
 export default function AssistantPage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const isAdam =
     process.env.NEXT_PUBLIC_PERSONA_ADAM_ENABLED === "true" &&
     session?.user?.sex === "male";
@@ -232,6 +234,7 @@ export default function AssistantPage() {
           content: m.content,
         })));
         setSessionId(session.id);
+        router.refresh();
         toast.success("Conversație reluată");
       }
     } catch {
